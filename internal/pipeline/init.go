@@ -59,6 +59,23 @@ func InitializeHomebrew(p *HomebrewPipeline, force bool) error {
 		return nil
 	}
 
+	githubUser := extractGithubUser(p.Config.Repository)
+
+	// Try cloning first
+	fmt.Printf("🍺 Attempting to clone Homebrew tap from GitHub...\n")
+	remoteURL := fmt.Sprintf("git@github.com:%s/%s.git", githubUser, p.TapName)
+	if err := runCmdInDir(".", "git", "clone", remoteURL, p.TapDir); err == nil {
+		if _, err := os.Stat(filepath.Join(p.TapDir, "Formula")); err == nil {
+			fmt.Printf("✅ Homebrew tap successfully cloned from GitHub to: %s\n", p.TapDir)
+			return nil
+		}
+		fmt.Printf("ℹ️  Cloned repository is empty. Initializing files locally...\n")
+	} else {
+		// Clean up on failure to clone, to allow local creation
+		_ = os.RemoveAll(p.TapDir)
+		fmt.Printf("ℹ️  Clone failed (repository may not exist on GitHub yet). Initializing a new repository locally...\n")
+	}
+
 	fmt.Printf("🍺 Initializing Homebrew tap repository...\n")
 	fmt.Printf("   Tap name: %s\n", p.TapName)
 	fmt.Printf("   Package name: %s\n", p.Config.GetPackageName())
@@ -107,7 +124,7 @@ brew untap {{.GithubUser}}/{{.PackageName}}
 ~~~
 `, "~", "`")
 
-	githubUser := extractGithubUser(p.Config.Repository)
+
 	readmeData := struct {
 		PackageName string
 		Name        string
@@ -194,12 +211,19 @@ end
 		return fmt.Errorf("failed to write .gitignore: %w", err)
 	}
 
-	// Git Init & Commit
-	if err := runCmdInDir(p.TapDir, "git", "init"); err != nil {
-		return fmt.Errorf("failed to run git init: %w", err)
+	gitDirExists := false
+	if _, err := os.Stat(filepath.Join(p.TapDir, ".git")); err == nil {
+		gitDirExists = true
 	}
-	if err := runCmdInDir(p.TapDir, "git", "branch", "-M", "main"); err != nil {
-		return fmt.Errorf("failed to rename branch to main: %w", err)
+
+	// Git Init & Commit
+	if !gitDirExists {
+		if err := runCmdInDir(p.TapDir, "git", "init"); err != nil {
+			return fmt.Errorf("failed to run git init: %w", err)
+		}
+		if err := runCmdInDir(p.TapDir, "git", "branch", "-M", "main"); err != nil {
+			return fmt.Errorf("failed to rename branch to main: %w", err)
+		}
 	}
 	if err := runCmdInDir(p.TapDir, "git", "add", "."); err != nil {
 		return fmt.Errorf("failed to add files to git: %w", err)
@@ -209,20 +233,28 @@ end
 	}
 
 	repoCreated := false
-	if ghPath, err := exec.LookPath("gh"); err == nil {
-		fmt.Printf("🚀 Creating GitHub repository %s/%s...\n", githubUser, p.TapName)
-		cmd := exec.Command(ghPath, "repo", "create", fmt.Sprintf("%s/%s", githubUser, p.TapName), "--public")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("⚠️  Warning: failed to create GitHub repository via gh CLI: %v\n", err)
-		} else {
+	if gitDirExists {
+		fmt.Printf("📤 Pushing initial commit to origin main...\n")
+		if err := runCmdInDir(p.TapDir, "git", "push", "-u", "origin", "main"); err == nil {
 			repoCreated = true
-			remoteURL := fmt.Sprintf("git@github.com:%s/%s.git", githubUser, p.TapName)
-			_ = runCmdInDir(p.TapDir, "git", "remote", "add", "origin", remoteURL)
-			fmt.Printf("📤 Pushing initial commit to origin main...\n")
-			if err := runCmdInDir(p.TapDir, "git", "push", "-u", "origin", "main"); err != nil {
-				fmt.Printf("⚠️  Warning: failed to push to origin main: %v\n", err)
+		} else {
+			fmt.Printf("⚠️  Warning: failed to push to origin main: %v\n", err)
+		}
+	} else {
+		if ghPath, err := exec.LookPath("gh"); err == nil {
+			fmt.Printf("🚀 Creating GitHub repository %s/%s...\n", githubUser, p.TapName)
+			cmd := exec.Command(ghPath, "repo", "create", fmt.Sprintf("%s/%s", githubUser, p.TapName), "--public")
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			if err := cmd.Run(); err != nil {
+				fmt.Printf("⚠️  Warning: failed to create GitHub repository via gh CLI: %v\n", err)
+			} else {
+				repoCreated = true
+				_ = runCmdInDir(p.TapDir, "git", "remote", "add", "origin", remoteURL)
+				fmt.Printf("📤 Pushing initial commit to origin main...\n")
+				if err := runCmdInDir(p.TapDir, "git", "push", "-u", "origin", "main"); err != nil {
+					fmt.Printf("⚠️  Warning: failed to push to origin main: %v\n", err)
+				}
 			}
 		}
 	}
@@ -254,6 +286,20 @@ func InitializeAUR(p *AURPipeline, force bool) error {
 	if !shouldProceed {
 		fmt.Printf("⚠️  AUR repository already exists at %s; skipping initialization. Use --force to overwrite.\n", p.AURDir)
 		return nil
+	}
+
+	// Try cloning first
+	fmt.Printf("📦 Attempting to clone AUR repository...\n")
+	remoteURL := fmt.Sprintf("ssh://aur@aur.archlinux.org/%s.git", p.Config.GetPackageName())
+	if err := runCmdInDir(".", "git", "clone", remoteURL, p.AURDir); err == nil {
+		if _, err := os.Stat(p.PKGBUILDPath); err == nil {
+			fmt.Printf("✅ AUR repository successfully cloned to: %s\n", p.AURDir)
+			return nil
+		}
+		fmt.Printf("ℹ️  Cloned repository is empty. Initializing files locally...\n")
+	} else {
+		_ = os.RemoveAll(p.AURDir)
+		fmt.Printf("ℹ️  Clone failed (repository may not exist on AUR yet). Initializing a new repository locally...\n")
 	}
 
 	fmt.Printf("📦 Initializing AUR repository...\n")
@@ -418,14 +464,47 @@ src/
 		return fmt.Errorf("failed to write .gitignore: %w", err)
 	}
 
+	// Generate .SRCINFO (requires makepkg)
+	makepkgPath, err := exec.LookPath("makepkg")
+	if err != nil {
+		fmt.Printf("⚠️  Warning: makepkg not found in PATH; required to generate .SRCINFO\n")
+	} else {
+		srcinfoPath := filepath.Join(p.AURDir, ".SRCINFO")
+		srcinfo, err := os.Create(srcinfoPath)
+		if err != nil {
+			return fmt.Errorf("create .SRCINFO: %w", err)
+		}
+		cmd := exec.Command(makepkgPath, "--printsrcinfo")
+		cmd.Dir = p.AURDir
+		cmd.Stdout = srcinfo
+		cmd.Stderr = os.Stderr
+		runErr := cmd.Run()
+		srcinfo.Close()
+		if runErr != nil {
+			return fmt.Errorf("makepkg --printsrcinfo: %w", runErr)
+		}
+	}
+
+	gitDirExists := false
+	if _, err := os.Stat(filepath.Join(p.AURDir, ".git")); err == nil {
+		gitDirExists = true
+	}
+
 	// Git Init & Commit
-	if err := runCmdInDir(p.AURDir, "git", "init"); err != nil {
-		return fmt.Errorf("failed to run git init: %w", err)
+	if !gitDirExists {
+		if err := runCmdInDir(p.AURDir, "git", "init"); err != nil {
+			return fmt.Errorf("failed to run git init: %w", err)
+		}
+		if err := runCmdInDir(p.AURDir, "git", "branch", "-M", "master"); err != nil {
+			return fmt.Errorf("failed to rename branch to master: %w", err)
+		}
 	}
-	if err := runCmdInDir(p.AURDir, "git", "branch", "-M", "master"); err != nil {
-		return fmt.Errorf("failed to rename branch to master: %w", err)
+	
+	gitAddArgs := []string{"add", "PKGBUILD", "README.md", ".gitignore"}
+	if _, err := os.Stat(filepath.Join(p.AURDir, ".SRCINFO")); err == nil {
+		gitAddArgs = append(gitAddArgs, ".SRCINFO")
 	}
-	if err := runCmdInDir(p.AURDir, "git", "add", "PKGBUILD", "README.md", ".gitignore"); err != nil {
+	if err := runCmdInDir(p.AURDir, "git", gitAddArgs...); err != nil {
 		return fmt.Errorf("failed to add files to git: %w", err)
 	}
 	if err := runCmdInDir(p.AURDir, "git", "commit", "-m", fmt.Sprintf("Initial commit: AUR package for %s", p.Config.GetPackageName())); err != nil {
@@ -433,9 +512,11 @@ src/
 	}
 
 	repoCreated := false
-	remoteURL := fmt.Sprintf("ssh://aur@aur.archlinux.org/%s.git", p.Config.GetPackageName())
-	fmt.Printf("🚀 Registering AUR remote: %s\n", remoteURL)
-	_ = runCmdInDir(p.AURDir, "git", "remote", "add", "origin", remoteURL)
+
+	if !gitDirExists {
+		fmt.Printf("🚀 Registering AUR remote: %s\n", remoteURL)
+		_ = runCmdInDir(p.AURDir, "git", "remote", "add", "origin", remoteURL)
+	}
 
 	fmt.Printf("📤 Pushing initial commit to AUR master...\n")
 	if err := runCmdInDir(p.AURDir, "git", "push", "-u", "origin", "master"); err != nil {
