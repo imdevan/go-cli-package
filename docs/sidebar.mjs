@@ -5,6 +5,7 @@ const apiReference = {
   items: [
     { label: 'app', link: '/api/app' },
     { label: 'errors', link: '/api/errors' },
+    { label: 'pipeline', link: '/api/pipeline' },
     {
       label: 'Adapters',
       items: [],
@@ -17,7 +18,9 @@ const sidebar = [
   { label: 'Install', link: '/install' },
   { label: 'Commands', items: [
     { label: 'go-cli-package', link: '/commands/go-cli-package' },
+    { label: 'build', link: '/commands/build' },
     { label: 'completion', link: '/commands/completion' },
+    { label: 'init', link: '/commands/init' },
 
   ] },
   { label: 'Configuration', link: '/configuration' },

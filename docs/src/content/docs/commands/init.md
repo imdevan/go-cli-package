@@ -1,23 +1,14 @@
 ---
 title: init
-description: Scaffold the Astro Starlight docs directory
+description: Initialize packaging repositories (Homebrew tap and/or AUR repository)
 ---
 
-Creates the docs/ folder and scaffolds Astro Starlight.
-If the docs/ directory already exists, init is a no-op.
-After scaffolding, init automatically runs generate to populate the docs site.
-
-### Example
-
-```bash
-go-cli-docs init
-go-cli-docs init --pkg-manager npm
-```
+Initialize packaging repositories (Homebrew tap and/or AUR repository)
 
 ## Usage
 
 ```bash
-go-cli-package init
+go-cli-package init [homebrew|aur|all]
 ```
 
 ## Flags
@@ -27,7 +18,7 @@ go-cli-package init
 
 | Flag | Type | Description |
 |------|------|-------------|
-| -p, --pkg-manager | string | Package manager to use (bun, npm, yarn, pnpm) |
+| -f, --force | bool | Force reinitialization, overwriting existing directories |
 
 
 ## Source

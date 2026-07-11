@@ -30,7 +30,9 @@ go-cli-package
 ## Available Commands
 
 
+- [`build`](/commands/build) - Build package targets (Go binary and/or AUR PKGBUILD)
 - [`completion`](/commands/completion) - Generate shell completion scripts
+- [`init`](/commands/init) - Initialize packaging repositories (Homebrew tap and/or AUR repository)
 
 ## Source
 
