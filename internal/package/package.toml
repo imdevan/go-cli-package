@@ -1,14 +1,14 @@
 # Package information - source of truth for project metadata
 # Run just sync after modifying this file
 
-name = "go-cli-docs"
-package_name = "go-cli-docs"
-module = "go-cli-docs"
-description = "A go cli to build docs for your go cli."
-short = "A cli for your (go) cli docs"
+name = "go-cli-package"
+package_name = "go-cli-package"
+module = "go-cli-package"
+description = "A go cli to deploy your go cli package."
+short = "A cli for your (go) cli package deployment"
 version = "0.3.0"
-homepage = "https://devan.gg/go-cli-docs"
-repository = "https://github.com/imdevan/go-cli-docs/"
+homepage = "https://devan.gg/go-cli-package"
+repository = "https://github.com/imdevan/go-cli-package/"
 author = "hi@devan.gg"
 docs_site = "https://devan.gg"
-docs_base = "/go-cli-docs"
+docs_base = "/go-cli-package"
