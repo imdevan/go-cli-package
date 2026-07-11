@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"runtime/debug"
 
 	"github.com/spf13/cobra"
@@ -10,42 +9,25 @@ import (
 
 var rootCmd = newRootCmd()
 
-// genAPIDocs is shared by init and generate via a persistent root flag.
-var genAPIDocs bool
-
-// templatesOverride is shared by init, generate, and watch via a persistent
-// root flag. Each entry is a path to a file or directory containing custom
-// templates that override the embedded defaults.
-var templatesOverride []string
-
 // @docs-command:root
 //
-//	name: go-cli-docs
+//	name: go-cli-package
 //	description:
-//		Generate Astro Starlight documentation for Go CLI projects.
-//		The tool parses Cobra commands and flags, rendering markdown pages,
-//		sidebar configs, and API docs.
+//		Package and release helper CLI.
 //	example:
 //		```bash
-//		go-cli-docs init
-//		go-cli-docs generate
-//		go-cli-docs watch
+//		go-cli-package completion bash
 //		```
 func newRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "go-cli-docs",
-		Short: "Generate Astro Starlight documentation for Go CLI projects",
-		// No RunE – invoking the root command without a subcommand shows help.
+		Use:          "go-cli-package",
+		Short:        "Package and release helper CLI",
 		SilenceUsage: true,
 	}
 
 	var showVersion bool
-	isProd := os.Getenv("NODE_ENV") == "production"
-	defaultGenAPI := !isProd
 
 	cmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Print version and exit")
-	cmd.PersistentFlags().BoolVarP(&genAPIDocs, "gen-api-docs", "a", defaultGenAPI, "Generate API documentation via gomarkdoc")
-	cmd.PersistentFlags().StringArrayVarP(&templatesOverride, "templates", "t", nil, "Path to a file or directory of custom templates overriding the embedded defaults (repeatable)")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if showVersion {
@@ -55,9 +37,6 @@ func newRootCmd() *cobra.Command {
 		return cmd.Help()
 	}
 
-	cmd.AddCommand(newInitCmd())
-	cmd.AddCommand(newGenerateCmd())
-	cmd.AddCommand(newWatchCmd())
 	cmd.AddCommand(newCompletionCmd())
 
 	return cmd
