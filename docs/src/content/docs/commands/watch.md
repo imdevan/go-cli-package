@@ -20,18 +20,6 @@ go-cli-docs watch --gen-api-docs=false
 go-cli-package watch
 ```
 
-## Flags
-
-### Global Flags
-
-
-
-| Flag | Type | Description |
-|------|------|-------------|
-| -a, --gen-api-docs | bool | Generate API documentation via gomarkdoc |
-| -t, --templates | stringarray | Path to a file or directory of custom templates overriding the embedded defaults (repeatable) |
-
-
 ## Source
 
 See [watch.go](https://github.com/imdevan/go-cli-package/blob/main/cmd/go-cli-package/watch.go) for implementation details.

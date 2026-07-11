@@ -5,7 +5,6 @@ const apiReference = {
   items: [
     { label: 'app', link: '/api/app' },
     { label: 'errors', link: '/api/errors' },
-    { label: 'workflow', link: '/api/workflow' },
     {
       label: 'Adapters',
       items: [],
@@ -19,9 +18,6 @@ const sidebar = [
   { label: 'Commands', items: [
     { label: 'go-cli-package', link: '/commands/go-cli-package' },
     { label: 'completion', link: '/commands/completion' },
-    { label: 'generate', link: '/commands/generate' },
-    { label: 'init', link: '/commands/init' },
-    { label: 'watch', link: '/commands/watch' },
 
   ] },
   { label: 'Configuration', link: '/configuration' },

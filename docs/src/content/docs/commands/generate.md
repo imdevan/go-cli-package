@@ -25,18 +25,6 @@ go-cli-docs generate --gen-api-docs=false
 go-cli-package generate
 ```
 
-## Flags
-
-### Global Flags
-
-
-
-| Flag | Type | Description |
-|------|------|-------------|
-| -a, --gen-api-docs | bool | Generate API documentation via gomarkdoc |
-| -t, --templates | stringarray | Path to a file or directory of custom templates overriding the embedded defaults (repeatable) |
-
-
 ## Source
 
 See [generate.go](https://github.com/imdevan/go-cli-package/blob/main/cmd/go-cli-package/generate.go) for implementation details.
