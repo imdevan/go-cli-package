@@ -68,13 +68,13 @@ func TestCLICommands(t *testing.T) {
 	}
 	
 	packageTomlContent := `
-name = "cli-test"
-package_name = "cli-test"
-module = "cli-test"
+name = "cli-test-rnd-7890"
+package_name = "cli-test-rnd-7890"
+module = "cli-test-rnd-7890"
 description = "A cli test"
 version = "1.0.0"
 homepage = "https://example.com"
-repository = "https://github.com/user/cli-test"
+repository = "https://github.com/user/cli-test-rnd-7890"
 author = "test@example.com"
 `
 	if err := os.WriteFile(filepath.Join(pkgTomlDir, "package.toml"), []byte(packageTomlContent), 0644); err != nil {
@@ -97,10 +97,10 @@ author = "test@example.com"
 	}
 
 	// Verify initialized files
-	if _, err := os.Stat(filepath.Join(tmpDir, "homebrew-cli-test", "Formula", "cli-test.rb")); err != nil {
+	if _, err := os.Stat(filepath.Join(tmpDir, "homebrew-cli-test-rnd-7890", "Formula", "cli-test-rnd-7890.rb")); err != nil {
 		t.Errorf("expected Homebrew formula to be created, got: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(tmpDir, "aur-cli-test", "PKGBUILD")); err != nil {
+	if _, err := os.Stat(filepath.Join(tmpDir, "aur-cli-test-rnd-7890", "PKGBUILD")); err != nil {
 		t.Errorf("expected AUR PKGBUILD to be created, got: %v", err)
 	}
 
@@ -119,8 +119,8 @@ sha256sums=('__SHA256__')
 		t.Fatalf("failed to write PKGBUILD template: %v", err)
 	}
 
-	// We also need cmd/cli-test/main.go to test go build
-	cmdPkgDir := filepath.Join(tmpDir, "cmd", "cli-test")
+	// We also need cmd/cli-test-rnd-7890/main.go to test go build
+	cmdPkgDir := filepath.Join(tmpDir, "cmd", "cli-test-rnd-7890")
 	if err := os.MkdirAll(cmdPkgDir, 0755); err != nil {
 		t.Fatalf("failed to create cmd pkg dir: %v", err)
 	}
@@ -132,7 +132,7 @@ func main() {}
 	}
 
 	// Write a mock go.mod so go build works inside tmpDir
-	goModContent := `module cli-test
+	goModContent := `module cli-test-rnd-7890
 go 1.25.6
 `
 	if err := os.WriteFile(filepath.Join(tmpDir, "go.mod"), []byte(goModContent), 0644); err != nil {
@@ -153,7 +153,7 @@ go 1.25.6
 	}
 
 	// Verify build outputs
-	if _, err := os.Stat(filepath.Join(tmpDir, "bin", "cli-test")); err != nil {
+	if _, err := os.Stat(filepath.Join(tmpDir, "bin", "cli-test-rnd-7890")); err != nil {
 		t.Errorf("expected built binary to exist, got: %v", err)
 	}
 	if _, err := os.Stat(filepath.Join(tmpDir, "dist", "aur", "PKGBUILD")); err != nil {
