@@ -173,7 +173,7 @@ func Release(rootDir string, pipelines *Pipelines, version string, skipTag, skip
 	fmt.Printf("  1. Update package manifests: go-cli-package update all %s\n", version)
 	fmt.Printf("  2. Test AUR: cd aur-%s && makepkg -si\n", pkgName)
 	fmt.Printf("  3. Test Homebrew: brew install --build-from-source homebrew-%s/Formula/%s.rb\n", pkgName, pkgName)
-	fmt.Printf("  4. Deploy: go-cli-package deploy all %s\n", version)
+	fmt.Printf("  4. Publish: go-cli-package publish all %s\n", version)
 	return nil
 }
 

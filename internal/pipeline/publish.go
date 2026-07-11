@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// DeployHomebrew commits and pushes the updated Homebrew formula to the tap remote.
-func DeployHomebrew(p *HomebrewPipeline, version string) error {
+// PublishHomebrew commits and pushes the updated Homebrew formula to the tap remote.
+func PublishHomebrew(p *HomebrewPipeline, version string) error {
 	if version == "" {
 		version = p.Config.Version
 	}
@@ -19,7 +19,7 @@ func DeployHomebrew(p *HomebrewPipeline, version string) error {
 		return fmt.Errorf("homebrew tap not found at %s; run 'init homebrew' first", p.TapDir)
 	}
 
-	fmt.Printf("🍺 Deploying Homebrew formula for v%s...\n", version)
+	fmt.Printf("🍺 Publishing Homebrew formula for v%s...\n", version)
 
 	pkgName := p.Config.GetPackageName()
 	githubUser := extractGithubUser(p.Config.Repository)
@@ -45,13 +45,13 @@ func DeployHomebrew(p *HomebrewPipeline, version string) error {
 		return fmt.Errorf("git push homebrew tap: %w", err)
 	}
 
-	fmt.Printf("✅ Homebrew formula deployed!\n")
+	fmt.Printf("✅ Homebrew formula published!\n")
 	fmt.Printf("   Install with: brew tap %s/%s && brew install %s\n", githubUser, pkgName, pkgName)
 	return nil
 }
 
-// DeployAUR commits and pushes the updated PKGBUILD to the AUR remote.
-func DeployAUR(p *AURPipeline, version string) error {
+// PublishAUR commits and pushes the updated PKGBUILD to the AUR remote.
+func PublishAUR(p *AURPipeline, version string) error {
 	if version == "" {
 		version = p.Config.Version
 	}
@@ -61,7 +61,7 @@ func DeployAUR(p *AURPipeline, version string) error {
 		return fmt.Errorf("AUR repository not found at %s; run 'init aur' first", p.AURDir)
 	}
 
-	fmt.Printf("📦 Deploying AUR package for v%s...\n", version)
+	fmt.Printf("📦 Publishing AUR package for v%s...\n", version)
 
 	pkgName := p.Config.GetPackageName()
 
@@ -105,7 +105,7 @@ func DeployAUR(p *AURPipeline, version string) error {
 		return fmt.Errorf("git push AUR: %w", err)
 	}
 
-	fmt.Printf("✅ AUR package deployed!\n")
+	fmt.Printf("✅ AUR package published!\n")
 	fmt.Printf("   https://aur.archlinux.org/packages/%s\n", pkgName)
 	return nil
 }

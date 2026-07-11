@@ -81,7 +81,7 @@ func TestUpdateAUR(t *testing.T) {
 	}
 }
 
-func TestParseSHA256FlagsInUpdateDeploy(t *testing.T) {
+func TestParseSHA256FlagsInUpdatePublish(t *testing.T) {
 	// parseSHA256Flags lives in cmd package; test the same logic here inline
 	flags := []string{"linux-amd64=abc", "darwin-arm64=xyz"}
 	m := make(map[string]string)
