@@ -66,10 +66,10 @@ docs-clean:
 tag-list: build
 	{{PACKAGE_BIN}} tag list
 
-tag version: build
+tag version="": build
 	{{PACKAGE_BIN}} tag create {{version}}
 
-tag-delete version: build
+tag-delete version="": build
 	{{PACKAGE_BIN}} tag delete {{version}}
 
 # Github release
