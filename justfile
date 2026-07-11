@@ -77,7 +77,7 @@ tag-delete version="": build
 release version="": build
 	{{PACKAGE_BIN}} release {{version}}
 
-publish version="": (release version)
+
 
 # Package management
 # ================================================================================
@@ -105,19 +105,20 @@ update version="": build
 	{{PACKAGE_BIN}} update all {{version}}
 
 
-# Deploy
+# Publish
 
-deploy-homebrew version="": build
-	{{PACKAGE_BIN}} deploy homebrew {{version}}
+publish-homebrew version="": build
+	{{PACKAGE_BIN}} publish homebrew {{version}}
 
-deploy-aur version="": build
-	{{PACKAGE_BIN}} deploy aur {{version}}
+publish-aur version="": build
+	{{PACKAGE_BIN}} publish aur {{version}}
 
-deploy version="": build
-	{{PACKAGE_BIN}} deploy all {{version}}
+publish version="": build
+	{{PACKAGE_BIN}} publish all {{version}}
 
 # aliases
-publish-homebrew version="": (deploy-homebrew version)
-publish-aur version="": (deploy-aur version)
+deploy-homebrew version="": (publish-homebrew version)
+deploy-aur version="": (publish-aur version)
+deploy version="": (publish version)
 
 
