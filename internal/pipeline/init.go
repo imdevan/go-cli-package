@@ -1,7 +1,6 @@
 package pipeline
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -19,36 +18,15 @@ func runCmdInDir(dir string, name string, args ...string) error {
 	return cmd.Run()
 }
 
-// Check if a directory exists and handle reinitialization
+// Check if a directory exists and handle reinitialization.
+// Returns true if we should proceed with initialization, or false if the directory exists
+// and force is false (indicating we should gracefully skip).
 func checkAndPrepareDir(dir string, force bool) (bool, error) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return true, nil
 	}
 
 	if force {
-		if err := os.RemoveAll(dir); err != nil {
-			return false, fmt.Errorf("failed to remove existing directory %s: %w", dir, err)
-		}
-		return true, nil
-	}
-
-	// Not forced, check if interactive terminal
-	fileInfo, err := os.Stdin.Stat()
-	isTerminal := err == nil && (fileInfo.Mode()&os.ModeCharDevice) != 0
-
-	if !isTerminal {
-		return false, fmt.Errorf("directory %s already exists; use --force to overwrite", dir)
-	}
-
-	fmt.Printf("⚠️  Directory already exists: %s\nDo you want to reinitialize it? (y/N): ", dir)
-	reader := bufio.NewReader(os.Stdin)
-	response, err := reader.ReadString('\n')
-	if err != nil {
-		return false, fmt.Errorf("failed to read response: %w", err)
-	}
-
-	response = strings.ToLower(strings.TrimSpace(response))
-	if response == "y" || response == "yes" {
 		if err := os.RemoveAll(dir); err != nil {
 			return false, fmt.Errorf("failed to remove existing directory %s: %w", dir, err)
 		}
@@ -77,7 +55,8 @@ func InitializeHomebrew(p *HomebrewPipeline, force bool) error {
 		return err
 	}
 	if !shouldProceed {
-		return fmt.Errorf("initialization of Homebrew tap aborted by user")
+		fmt.Printf("⚠️  Homebrew tap already exists at %s; skipping initialization. Use --force to overwrite.\n", p.TapDir)
+		return nil
 	}
 
 	fmt.Printf("🍺 Initializing Homebrew tap repository...\n")
@@ -229,16 +208,39 @@ end
 		return fmt.Errorf("failed to run git commit: %w", err)
 	}
 
+	repoCreated := false
+	if ghPath, err := exec.LookPath("gh"); err == nil {
+		fmt.Printf("🚀 Creating GitHub repository %s/%s...\n", githubUser, p.TapName)
+		cmd := exec.Command(ghPath, "repo", "create", fmt.Sprintf("%s/%s", githubUser, p.TapName), "--public")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			fmt.Printf("⚠️  Warning: failed to create GitHub repository via gh CLI: %v\n", err)
+		} else {
+			repoCreated = true
+			remoteURL := fmt.Sprintf("git@github.com:%s/%s.git", githubUser, p.TapName)
+			_ = runCmdInDir(p.TapDir, "git", "remote", "add", "origin", remoteURL)
+			fmt.Printf("📤 Pushing initial commit to origin main...\n")
+			if err := runCmdInDir(p.TapDir, "git", "push", "-u", "origin", "main"); err != nil {
+				fmt.Printf("⚠️  Warning: failed to push to origin main: %v\n", err)
+			}
+		}
+	}
+
 	fmt.Printf("\n✅ Homebrew tap initialized at: %s\n\n", p.TapDir)
-	fmt.Printf("Next steps:\n")
-	fmt.Printf("1. Create a GitHub repository: https://github.com/new\n")
-	fmt.Printf("   Repository name: %s\n", p.TapName)
-	fmt.Printf("2. Push the tap:\n")
-	fmt.Printf("   cd %s\n", p.TapDir)
-	fmt.Printf("   git remote add origin git@github.com:%s/%s.git\n", githubUser, p.TapName)
-	fmt.Printf("   git push -u origin main\n")
-	fmt.Printf("3. Update the formula with actual release SHA256 using:\n")
-	fmt.Printf("   go-cli-package update --version VERSION\n\n")
+	if !repoCreated {
+		fmt.Printf("Next steps:\n")
+		fmt.Printf("1. Create a GitHub repository: https://github.com/new\n")
+		fmt.Printf("   Repository name: %s\n", p.TapName)
+		fmt.Printf("2. Push the tap:\n")
+		fmt.Printf("   cd %s\n", p.TapDir)
+		fmt.Printf("   git remote add origin git@github.com:%s/%s.git\n", githubUser, p.TapName)
+		fmt.Printf("   git push -u origin main\n")
+	} else {
+		fmt.Printf("Next steps:\n")
+		fmt.Printf("1. Update the formula with actual release SHA256 using:\n")
+		fmt.Printf("   go-cli-package update [version]\n\n")
+	}
 
 	return nil
 }
@@ -250,7 +252,8 @@ func InitializeAUR(p *AURPipeline, force bool) error {
 		return err
 	}
 	if !shouldProceed {
-		return fmt.Errorf("initialization of AUR repository aborted by user")
+		fmt.Printf("⚠️  AUR repository already exists at %s; skipping initialization. Use --force to overwrite.\n", p.AURDir)
+		return nil
 	}
 
 	fmt.Printf("📦 Initializing AUR repository...\n")
@@ -429,16 +432,31 @@ src/
 		return fmt.Errorf("failed to run git commit: %w", err)
 	}
 
+	repoCreated := false
+	remoteURL := fmt.Sprintf("ssh://aur@aur.archlinux.org/%s.git", p.Config.GetPackageName())
+	fmt.Printf("🚀 Registering AUR remote: %s\n", remoteURL)
+	_ = runCmdInDir(p.AURDir, "git", "remote", "add", "origin", remoteURL)
+
+	fmt.Printf("📤 Pushing initial commit to AUR master...\n")
+	if err := runCmdInDir(p.AURDir, "git", "push", "-u", "origin", "master"); err != nil {
+		fmt.Printf("⚠️  Warning: failed to push to AUR remote (does the package exist or is your SSH key correct?): %v\n", err)
+	} else {
+		repoCreated = true
+	}
+
 	fmt.Printf("\n✅ AUR repository initialized at: %s\n\n", p.AURDir)
-	fmt.Printf("Next steps:\n")
-	fmt.Printf("1. Register an AUR account: https://aur.archlinux.org/register\n")
-	fmt.Printf("2. Add your SSH key to AUR: https://aur.archlinux.org/account\n")
-	fmt.Printf("3. Push the package:\n")
-	fmt.Printf("   cd %s\n", p.AURDir)
-	fmt.Printf("   git remote add aur ssh://aur@aur.archlinux.org/%s.git\n", p.Config.GetPackageName())
-	fmt.Printf("   git push -u aur master\n")
-	fmt.Printf("4. Update PKGBUILD with actual release SHA256 using:\n")
-	fmt.Printf("   go-cli-package update --version VERSION\n\n")
+	if !repoCreated {
+		fmt.Printf("Next steps:\n")
+		fmt.Printf("1. Register an AUR account: https://aur.archlinux.org/register\n")
+		fmt.Printf("2. Add your SSH key to AUR: https://aur.archlinux.org/account\n")
+		fmt.Printf("3. Push the package manually:\n")
+		fmt.Printf("   cd %s\n", p.AURDir)
+		fmt.Printf("   git push -u origin master\n")
+	} else {
+		fmt.Printf("Next steps:\n")
+		fmt.Printf("1. Update PKGBUILD with actual release SHA256 using:\n")
+		fmt.Printf("   go-cli-package update [version]\n\n")
+	}
 
 	return nil
 }
