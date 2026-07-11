@@ -34,7 +34,7 @@ go-cli-package
 - [`completion`](/commands/completion) - Generate shell completion scripts
 - [`deploy`](/commands/deploy) - Push updated package manifests to their remotes
 - [`init`](/commands/init) - Initialize packaging repositories (Homebrew tap and/or AUR repository)
-- [`release`](/commands/release) - Build, tag, publish a GitHub release, and update package manifests
+- [`release`](/commands/release) - Build, tag, and publish a GitHub release
 - [`tag`](/commands/tag) - Manage git tags
 - [`update`](/commands/update) - Update package manifests with a new version and checksums
 

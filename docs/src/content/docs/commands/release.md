@@ -1,9 +1,9 @@
 ---
 title: release
-description: Build, tag, publish a GitHub release, and update package manifests
+description: Build, tag, and publish a GitHub release
 ---
 
-Build, tag, publish a GitHub release, and update package manifests
+Build, tag, and publish a GitHub release
 
 ## Usage
 
@@ -18,10 +18,8 @@ go-cli-package release [version]
 
 | Flag | Type | Description |
 |------|------|-------------|
-| --sha256 | stringarray | Pre-computed SHA256s as platform=hash pairs, e.g. --sha256 linux-amd64=abc123 (repeatable; downloads if omitted) |
 | --skip-tag | bool | Skip git tag creation |
 | --skip-github | bool | Skip GitHub release creation (binaries won't be built) |
-| --skip-update | bool | Skip Homebrew formula and AUR PKGBUILD updates |
 
 
 ## Source
