@@ -12,7 +12,6 @@ import (
 // It compiles the code in ./cmd/<name> and saves the output to ./bin/<name>.
 func BuildBinary(rootDir string, cfg *Config) error {
 	pkgName := cfg.Name
-	cmdDir := filepath.Join(rootDir, "cmd", pkgName)
 	binDir := filepath.Join(rootDir, "bin")
 	binPath := filepath.Join(binDir, pkgName)
 
