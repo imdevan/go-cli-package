@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"go-cli-package/internal/testutil"
+	"github.com/imdevan/go-cli-package/internal/testutil"
 	"github.com/spf13/cobra"
 )
 

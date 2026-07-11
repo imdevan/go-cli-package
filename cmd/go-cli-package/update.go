@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"go-cli-package/internal/pipeline"
+	"github.com/imdevan/go-cli-package/internal/pipeline"
 	"github.com/spf13/cobra"
 )
 

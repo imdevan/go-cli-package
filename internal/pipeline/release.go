@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	ziputil "go-cli-package/internal/util/zip"
+	ziputil "github.com/imdevan/go-cli-package/internal/util/zip"
 )
 
 // ReleaseTarget describes a cross-compilation target.

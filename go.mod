@@ -1,4 +1,4 @@
-module go-cli-package
+module github.com/imdevan/go-cli-package
 
 go 1.25.6
 
