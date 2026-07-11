@@ -56,12 +56,20 @@ func newTagCreateCmd() *cobra.Command {
 	var force bool
 
 	cmd := &cobra.Command{
-		Use:   "create <version>",
+		Use:   "create [version]",
 		Short: "Create and push an annotated git tag",
 		Long:  "Create an annotated git tag vVERSION and push it to origin. Use --force to overwrite an existing tag.",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return pipeline.TagCreate(".", args[0], force)
+			version := ""
+			if len(args) > 0 {
+				version = args[0]
+			}
+			resolved, err := pipeline.ResolveVersion(version)
+			if err != nil {
+				return err
+			}
+			return pipeline.TagCreate(".", resolved, force)
 		},
 	}
 
@@ -72,12 +80,20 @@ func newTagCreateCmd() *cobra.Command {
 
 func newTagDeleteCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete <version>",
+		Use:   "delete [version]",
 		Short: "Delete a git tag locally and remotely",
 		Long:  "Delete tag vVERSION both locally and from the origin remote.",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return pipeline.TagDelete(".", args[0])
+			version := ""
+			if len(args) > 0 {
+				version = args[0]
+			}
+			resolved, err := pipeline.ResolveVersion(version)
+			if err != nil {
+				return err
+			}
+			return pipeline.TagDelete(".", resolved)
 		},
 	}
 

@@ -29,16 +29,21 @@ func newDeployCmd() *cobra.Command {
 				version = args[1]
 			}
 
+			resolved, err := pipeline.ResolveVersion(version)
+			if err != nil {
+				return err
+			}
+
 			switch target {
 			case "homebrew":
-				return pipeline.DeployHomebrew(pipelines.Homebrew, version)
+				return pipeline.DeployHomebrew(pipelines.Homebrew, resolved)
 			case "aur":
-				return pipeline.DeployAUR(pipelines.AUR, version)
+				return pipeline.DeployAUR(pipelines.AUR, resolved)
 			case "all", "":
-				if err := pipeline.DeployHomebrew(pipelines.Homebrew, version); err != nil {
+				if err := pipeline.DeployHomebrew(pipelines.Homebrew, resolved); err != nil {
 					return fmt.Errorf("homebrew deploy failed: %w", err)
 				}
-				return pipeline.DeployAUR(pipelines.AUR, version)
+				return pipeline.DeployAUR(pipelines.AUR, resolved)
 			default:
 				return fmt.Errorf("invalid target %q; must be 'homebrew', 'aur', or 'all'", target)
 			}

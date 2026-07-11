@@ -34,16 +34,21 @@ func newUpdateCmd() *cobra.Command {
 				version = args[1]
 			}
 
+			resolved, err := pipeline.ResolveVersion(version)
+			if err != nil {
+				return err
+			}
+
 			switch target {
 			case "homebrew":
-				return pipeline.UpdateHomebrew(pipelines.Homebrew, version, sha256s)
+				return pipeline.UpdateHomebrew(pipelines.Homebrew, resolved, sha256s)
 			case "aur":
-				return pipeline.UpdateAUR(pipelines.AUR, version, sha256s)
+				return pipeline.UpdateAUR(pipelines.AUR, resolved, sha256s)
 			case "all", "":
-				if err := pipeline.UpdateHomebrew(pipelines.Homebrew, version, sha256s); err != nil {
+				if err := pipeline.UpdateHomebrew(pipelines.Homebrew, resolved, sha256s); err != nil {
 					return fmt.Errorf("homebrew update failed: %w", err)
 				}
-				return pipeline.UpdateAUR(pipelines.AUR, version, sha256s)
+				return pipeline.UpdateAUR(pipelines.AUR, resolved, sha256s)
 			default:
 				return fmt.Errorf("invalid target %q; must be 'homebrew', 'aur', or 'all'", target)
 			}

@@ -36,9 +36,14 @@ Use --skip-tag, --skip-github, or --skip-update to omit individual steps.`,
 				version = args[0]
 			}
 
+			resolved, err := pipeline.ResolveVersion(version)
+			if err != nil {
+				return err
+			}
+
 			sha256s := parseSHA256Flags(sha256Flags)
 
-			return pipeline.Release(".", pipelines, version, sha256s, skipTag, skipGithub, skipUpdate)
+			return pipeline.Release(".", pipelines, resolved, sha256s, skipTag, skipGithub, skipUpdate)
 		},
 	}
 
