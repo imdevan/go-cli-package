@@ -1,21 +1,15 @@
-# go-cli-docs
+# go-cli-package
 
 <img width="480" height="270" alt="screenshot-2026-02-23_16-30-13" src="https://github.com/user-attachments/assets/65386b56-f06f-47be-9063-5c947b30dc51" />
 
-A go cli to build docs for your go cli.
+A go cli package to manage your go cli package deployment.
 
 ## Features
 
-- [Built on go Cobra](https://github.com/spf13/cobra)
-- Scaffolds [Astro Starlight](https://starlight.astro.build/) docs site with a single command
-- Automatic documentation generated from Go source and project markdown files
-  - Command pages parsed directly from Cobra command definitions
-  - API reference pages via [gomarkdoc](https://github.com/princjef/gomarkdoc)
-- Live-reload watcher — reruns `generate` whenever source files change
-- [Just](https://just.systems/) recipes to build, test, and release
-  - Homebrew tap, AUR, GitHub release, and manual download supported
-- Integration and unit tested
-- Shell completion (bash, zsh, fish, powershell)
+- manage GitHub tags and releases
+- init, update, and deploy aur and homebrew packages
+- easily callable from make or just build tools. 
+- doesn't add to your go cli build size
 
 ## Author's Note
 
