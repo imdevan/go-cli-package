@@ -8,7 +8,7 @@ Build, tag, publish a GitHub release, and update package manifests
 ## Usage
 
 ```bash
-go-cli-package release
+go-cli-package release [version]
 ```
 
 ## Flags
@@ -18,7 +18,6 @@ go-cli-package release
 
 | Flag | Type | Description |
 |------|------|-------------|
-| --version | string | Release version (defaults to latest git tag, then package.toml version) |
 | --sha256 | stringarray | Pre-computed SHA256s as platform=hash pairs, e.g. --sha256 linux-amd64=abc123 (repeatable; downloads if omitted) |
 | --skip-tag | bool | Skip git tag creation |
 | --skip-github | bool | Skip GitHub release creation (binaries won't be built) |

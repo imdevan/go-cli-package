@@ -8,18 +8,8 @@ Push updated package manifests to their remotes
 ## Usage
 
 ```bash
-go-cli-package deploy [homebrew|aur|all]
+go-cli-package deploy [homebrew|aur|all] [version]
 ```
-
-## Flags
-
-
-
-
-| Flag | Type | Description |
-|------|------|-------------|
-| --version | string | Release version (defaults to package.toml version) |
-
 
 ## Source
 
