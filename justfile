@@ -115,10 +115,3 @@ publish-aur version="": build
 
 publish version="": build
 	{{PACKAGE_BIN}} publish all {{version}}
-
-# aliases
-deploy-homebrew version="": (publish-homebrew version)
-deploy-aur version="": (publish-aur version)
-deploy version="": (publish version)
-
-
