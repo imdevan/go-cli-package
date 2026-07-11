@@ -22,6 +22,8 @@ const sidebar = [
     { label: 'completion', link: '/commands/completion' },
     { label: 'deploy', link: '/commands/deploy' },
     { label: 'init', link: '/commands/init' },
+    { label: 'release', link: '/commands/release' },
+    { label: 'tag', link: '/commands/tag' },
     { label: 'update', link: '/commands/update' },
 
   ] },
