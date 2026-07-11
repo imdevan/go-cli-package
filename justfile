@@ -84,13 +84,13 @@ publish version="": (release version)
 
 # Pipeline init
 
-init-homebrew-tap: build
+init-homebrew: build
 	{{PACKAGE_BIN}} init homebrew
 
-init-aur-repo: build
+init-aur: build
 	{{PACKAGE_BIN}} init aur
 
-init-all: build
+init: build
 	{{PACKAGE_BIN}} init all
 
 # Package updates
@@ -113,7 +113,7 @@ deploy-homebrew version="": build
 deploy-aur version="": build
 	{{PACKAGE_BIN}} deploy aur {{version}}
 
-deploy-all version="": build
+deploy version="": build
 	{{PACKAGE_BIN}} deploy all {{version}}
 
 # aliases
