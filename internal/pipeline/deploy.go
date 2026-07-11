@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -70,18 +71,20 @@ func DeployAUR(p *AURPipeline, version string) error {
 		return fmt.Errorf("makepkg not found in PATH; required to generate .SRCINFO")
 	}
 
-	srcinfo, err := os.Create(fmt.Sprintf("%s/.SRCINFO", p.AURDir))
+	srcinfoPath := filepath.Join(p.AURDir, ".SRCINFO")
+	srcinfo, err := os.Create(srcinfoPath)
 	if err != nil {
 		return fmt.Errorf("create .SRCINFO: %w", err)
 	}
-	defer srcinfo.Close()
 
 	cmd := exec.Command(makepkgPath, "--printsrcinfo")
 	cmd.Dir = p.AURDir
 	cmd.Stdout = srcinfo
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("makepkg --printsrcinfo: %w", err)
+	runErr := cmd.Run()
+	srcinfo.Close()
+	if runErr != nil {
+		return fmt.Errorf("makepkg --printsrcinfo: %w", runErr)
 	}
 
 	// Ensure AUR remote
