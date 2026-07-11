@@ -7,5 +7,5 @@ export default {
   github: "https://github.com/imdevan/go-cli-package/",
   githubDocs: "https://github.com/imdevan/go-cli-package/",
   title: "go-cli-package",
-  description: "A go cli to deploy your go cli package.",
+  description: "A go cli to publish your go cli package.",
 }

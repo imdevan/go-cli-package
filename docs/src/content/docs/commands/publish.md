@@ -1,5 +1,5 @@
 ---
-title: deploy
+title: publish
 description: Push updated package manifests to their remotes
 ---
 
@@ -8,7 +8,7 @@ Push updated package manifests to their remotes
 ## Usage
 
 ```bash
-go-cli-package deploy [homebrew|aur|all] [version]
+go-cli-package publish [homebrew|aur|all] [version]
 ```
 
 ## Source

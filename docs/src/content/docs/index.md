@@ -1,15 +1,15 @@
 ---
 title: go-cli-package
-description: A go cli to deploy your go cli package.
+description: A go cli to publish your go cli package.
 ---
 
 
-A go cli package to manage your go cli package deployment.
+A go cli package to manage your go cli package publishing.
 
 ## Features
 
 - manage GitHub tags and releases
-- init, update, and deploy aur and homebrew packages
+- init, update, and publish aur and homebrew packages
 - easily callable from make or just build tools. 
 - doesn't add to your go cli build size
 
@@ -302,9 +302,9 @@ just tag-delete 1.0.0    # Delete a git tag locally and remotely
 just tag-list            # List recent tags
 just release 1.0.0       # Full release (build, tag, publish)
 just github-release 1.0.0   # Create a GitHub release with assets
-just deploy-aur 1.0.0       # Deploy to AUR
-just deploy-homebrew 1.0.0  # Deploy to Homebrew tap
-just deploy-all 1.0.0       # Deploy to all targets
+just publish-aur 1.0.0       # Publish to AUR
+just publish-homebrew 1.0.0  # Publish to Homebrew tap
+just publish 1.0.0           # Publish to all targets
 ```
 
 ## Global Flags

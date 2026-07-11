@@ -32,8 +32,8 @@ go-cli-package
 
 - [`build`](/commands/build) - Build package targets (Go binary and/or AUR PKGBUILD)
 - [`completion`](/commands/completion) - Generate shell completion scripts
-- [`deploy`](/commands/deploy) - Push updated package manifests to their remotes
 - [`init`](/commands/init) - Initialize packaging repositories (Homebrew tap and/or AUR repository)
+- [`publish`](/commands/publish) - Push updated package manifests to their remotes
 - [`release`](/commands/release) - Build, tag, and publish a GitHub release
 - [`sync`](/commands/sync) - Sync project files with package.toml configuration
 - [`tag`](/commands/tag) - Manage git tags
