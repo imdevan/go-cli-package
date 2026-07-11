@@ -32,7 +32,9 @@ go-cli-package
 
 - [`build`](/commands/build) - Build package targets (Go binary and/or AUR PKGBUILD)
 - [`completion`](/commands/completion) - Generate shell completion scripts
+- [`deploy`](/commands/deploy) - Push updated package manifests to their remotes
 - [`init`](/commands/init) - Initialize packaging repositories (Homebrew tap and/or AUR repository)
+- [`update`](/commands/update) - Update package manifests with a new version and checksums
 
 ## Source
 

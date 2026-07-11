@@ -20,7 +20,9 @@ const sidebar = [
     { label: 'go-cli-package', link: '/commands/go-cli-package' },
     { label: 'build', link: '/commands/build' },
     { label: 'completion', link: '/commands/completion' },
+    { label: 'deploy', link: '/commands/deploy' },
     { label: 'init', link: '/commands/init' },
+    { label: 'update', link: '/commands/update' },
 
   ] },
   { label: 'Configuration', link: '/configuration' },
