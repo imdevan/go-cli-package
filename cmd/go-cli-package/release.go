@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-cli-package/internal/pipeline"
+
 	"github.com/spf13/cobra"
 )
 
