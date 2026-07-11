@@ -44,6 +44,7 @@ func newRootCmd() *cobra.Command {
 	cmd.AddCommand(newDeployCmd())
 	cmd.AddCommand(newTagCmd())
 	cmd.AddCommand(newReleaseCmd())
+	cmd.AddCommand(newSyncCmd())
 
 	return cmd
 }
