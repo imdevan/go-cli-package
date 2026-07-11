@@ -37,13 +37,13 @@ clean:
 
 # Documentation tasks
 docs-init args="":
-	./bin/go-cli-package init {{args}}
+	go-cli-docs init {{args}}
 
 docs-generate args="":
-	./bin/go-cli-package generate {{args}}
+	go-cli-docs generate {{args}}
 
 docs-dev args="":
-	./bin/go-cli-package watch {{args}} & cd docs && bun install && bun run dev
+	go-cli-docs watch {{args}} & cd docs && bun install && bun run dev
 
 docs-build: docs-generate
 	@echo "🏗️  Building documentation site..."
