@@ -8,7 +8,7 @@ Build package targets (Go binary and/or AUR PKGBUILD)
 ## Usage
 
 ```bash
-go-cli-package build [binary|aur|all]
+go-cli-package build [binary|aur|all] [version]
 ```
 
 ## Flags
@@ -18,7 +18,6 @@ go-cli-package build [binary|aur|all]
 
 | Flag | Type | Description |
 |------|------|-------------|
-| --version | string | Version of the release (defaults to git tag or package.toml version) |
 | --sha256 | string | SHA256 checksum of the source archive (required for AUR) |
 
 

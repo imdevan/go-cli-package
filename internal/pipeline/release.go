@@ -138,8 +138,12 @@ func Release(rootDir string, pipelines *Pipelines, version string, sha256s map[s
 	// Step 1 – Git tag
 	if !skipTag {
 		fmt.Println("Step 1: Creating git tag...")
-		if err := TagCreate(rootDir, version, false); err != nil {
-			return fmt.Errorf("tag: %w", err)
+		if tagExists(rootDir, tag) {
+			fmt.Printf("⚠️  Tag %s already exists; skipping tag creation\n", tag)
+		} else {
+			if err := TagCreate(rootDir, version, false); err != nil {
+				return fmt.Errorf("tag: %w", err)
+			}
 		}
 		fmt.Println()
 	}

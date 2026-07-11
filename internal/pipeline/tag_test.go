@@ -178,3 +178,30 @@ func TestTagExists(t *testing.T) {
 		t.Error("expected tagExists to return true after creating tag")
 	}
 }
+
+func TestRelease_SkipTagIfExists(t *testing.T) {
+	dir := t.TempDir()
+	initTestRepo(t, dir)
+
+	// Pre-create tag
+	tag := "v1.2.3"
+	cmd := exec.Command("git", "tag", "-a", tag, "-m", "pre-existing")
+	cmd.Dir = dir
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("pre-create tag: %v\n%s", err, out)
+	}
+
+	cfg := &Config{
+		Name:    "test-pkg",
+		Version: "1.2.3",
+	}
+	pipelines := NewPipelines(dir, cfg)
+
+	// Release with skipGithub=true, skipUpdate=true, skipTag=false.
+	// Since tag exists, it should print warning but NOT return an error.
+	err := Release(dir, pipelines, "1.2.3", nil, false, true, true)
+	if err != nil {
+		t.Fatalf("Release failed on pre-existing tag: %v", err)
+	}
+}
+
