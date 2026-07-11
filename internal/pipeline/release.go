@@ -130,8 +130,7 @@ func GithubRelease(rootDir string, cfg *Config, version string, cleanDist bool) 
 // Release is the end-to-end release command that:
 //  1. Creates and pushes a git tag.
 //  2. Builds cross-platform binaries and creates a GitHub release.
-//  3. Updates the Homebrew formula and AUR PKGBUILD.
-func Release(rootDir string, pipelines *Pipelines, version string, sha256s map[string]string, skipTag, skipGithub, skipUpdate bool) error {
+func Release(rootDir string, pipelines *Pipelines, version string, skipTag, skipGithub bool) error {
 	cfg := pipelines.Config
 
 	version = resolveVersion(rootDir, version, cfg)
@@ -167,28 +166,14 @@ func Release(rootDir string, pipelines *Pipelines, version string, sha256s map[s
 		fmt.Println()
 	}
 
-	// Step 3 – Package updates
-	if !skipUpdate {
-		fmt.Println("Step 3: Updating Homebrew formula...")
-		if err := UpdateHomebrew(pipelines.Homebrew, version, sha256s); err != nil {
-			return fmt.Errorf("homebrew update: %w", err)
-		}
-		fmt.Println()
-
-		fmt.Println("Step 4: Updating AUR PKGBUILD...")
-		if err := UpdateAUR(pipelines.AUR, version, sha256s); err != nil {
-			return fmt.Errorf("AUR update: %w", err)
-		}
-		fmt.Println()
-	}
-
 	fmt.Printf("✅ Release %s complete!\n", tag)
 	fmt.Println()
 	fmt.Println("Next steps:")
 	pkgName := cfg.GetPackageName()
-	fmt.Printf("  1. Test AUR: cd aur-%s && makepkg -si\n", pkgName)
-	fmt.Printf("  2. Test Homebrew: brew install --build-from-source homebrew-%s/Formula/%s.rb\n", pkgName, pkgName)
-	fmt.Printf("  3. Deploy: go-cli-package deploy all\n")
+	fmt.Printf("  1. Update package manifests: go-cli-package update all %s\n", version)
+	fmt.Printf("  2. Test AUR: cd aur-%s && makepkg -si\n", pkgName)
+	fmt.Printf("  3. Test Homebrew: brew install --build-from-source homebrew-%s/Formula/%s.rb\n", pkgName, pkgName)
+	fmt.Printf("  4. Deploy: go-cli-package deploy all %s\n", version)
 	return nil
 }
 

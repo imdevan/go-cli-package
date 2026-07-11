@@ -197,9 +197,9 @@ func TestRelease_SkipTagIfExists(t *testing.T) {
 	}
 	pipelines := NewPipelines(dir, cfg)
 
-	// Release with skipGithub=true, skipUpdate=true, skipTag=false.
+	// Release with skipGithub=true, skipTag=false.
 	// Since tag exists, it should print warning but NOT return an error.
-	err := Release(dir, pipelines, "1.2.3", nil, false, true, true)
+	err := Release(dir, pipelines, "1.2.3", false, true)
 	if err != nil {
 		t.Fatalf("Release failed on pre-existing tag: %v", err)
 	}
