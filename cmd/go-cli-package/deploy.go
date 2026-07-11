@@ -8,13 +8,11 @@ import (
 )
 
 func newDeployCmd() *cobra.Command {
-	var version string
-
 	cmd := &cobra.Command{
-		Use:   "deploy [homebrew|aur|all]",
+		Use:   "deploy [homebrew|aur|all] [version]",
 		Short: "Push updated package manifests to their remotes",
 		Long:  "Commit and push the updated Homebrew formula and/or AUR PKGBUILD to their respective remotes.",
-		Args:  cobra.MaximumNArgs(1),
+		Args:  cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := pipeline.FindAndLoadConfig(".")
 			if err != nil {
@@ -25,6 +23,10 @@ func newDeployCmd() *cobra.Command {
 			target := "all"
 			if len(args) > 0 {
 				target = args[0]
+			}
+			version := ""
+			if len(args) > 1 {
+				version = args[1]
 			}
 
 			switch target {
@@ -42,8 +44,6 @@ func newDeployCmd() *cobra.Command {
 			}
 		},
 	}
-
-	cmd.Flags().StringVar(&version, "version", "", "Release version (defaults to package.toml version)")
 
 	return cmd
 }

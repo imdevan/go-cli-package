@@ -70,13 +70,13 @@ init-all: build
 # Package updates
 
 update-homebrew VERSION="": build
-	{{CLI}} update homebrew {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} update homebrew {{VERSION}}
 
 update-aur VERSION="": build
-	{{CLI}} update aur {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} update aur {{VERSION}}
 
 update VERSION="": build
-	{{CLI}} update all {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} update all {{VERSION}}
 
 # Git tag management
 
@@ -92,13 +92,13 @@ tag-delete VERSION: build
 # Deploy
 
 deploy-homebrew VERSION="": build
-	{{CLI}} deploy homebrew {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} deploy homebrew {{VERSION}}
 
 deploy-aur VERSION="": build
-	{{CLI}} deploy aur {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} deploy aur {{VERSION}}
 
 deploy-all VERSION="": build
-	{{CLI}} deploy all {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} deploy all {{VERSION}}
 
 # aliases
 publish-homebrew VERSION="": (deploy-homebrew VERSION)
@@ -107,6 +107,6 @@ publish-aur VERSION="": (deploy-aur VERSION)
 # Release
 
 release VERSION="": build
-	{{CLI}} release {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+	{{CLI}} release {{VERSION}}
 
 publish VERSION="": (release VERSION)

@@ -9,14 +9,13 @@ import (
 )
 
 func newUpdateCmd() *cobra.Command {
-	var version string
 	var sha256Flags []string
 
 	cmd := &cobra.Command{
-		Use:   "update [homebrew|aur|all]",
+		Use:   "update [homebrew|aur|all] [version]",
 		Short: "Update package manifests with a new version and checksums",
 		Long:  "Update Homebrew formula and/or AUR PKGBUILD with a new version and SHA256 checksums.",
-		Args:  cobra.MaximumNArgs(1),
+		Args:  cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := pipeline.FindAndLoadConfig(".")
 			if err != nil {
@@ -29,6 +28,10 @@ func newUpdateCmd() *cobra.Command {
 			target := "all"
 			if len(args) > 0 {
 				target = args[0]
+			}
+			version := ""
+			if len(args) > 1 {
+				version = args[1]
 			}
 
 			switch target {
@@ -47,7 +50,6 @@ func newUpdateCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&version, "version", "", "Release version (defaults to package.toml version)")
 	cmd.Flags().StringArrayVar(&sha256Flags, "sha256", nil,
 		"SHA256 checksums as platform=hash pairs, e.g. --sha256 linux-amd64=abc123 (repeatable; downloads if omitted)")
 

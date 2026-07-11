@@ -7,7 +7,6 @@ import (
 
 func newReleaseCmd() *cobra.Command {
 	var (
-		version     string
 		sha256Flags []string
 		skipTag     bool
 		skipGithub  bool
@@ -15,7 +14,7 @@ func newReleaseCmd() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "release",
+		Use:   "release [version]",
 		Short: "Build, tag, publish a GitHub release, and update package manifests",
 		Long: `End-to-end release automation that:
   1. Creates and pushes an annotated git tag.
@@ -23,7 +22,7 @@ func newReleaseCmd() *cobra.Command {
   3. Updates the Homebrew formula and AUR PKGBUILD.
 
 Use --skip-tag, --skip-github, or --skip-update to omit individual steps.`,
-		Args: cobra.NoArgs,
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := pipeline.FindAndLoadConfig(".")
 			if err != nil {
@@ -31,13 +30,17 @@ Use --skip-tag, --skip-github, or --skip-update to omit individual steps.`,
 			}
 			pipelines := pipeline.NewPipelines(".", cfg)
 
+			version := ""
+			if len(args) > 0 {
+				version = args[0]
+			}
+
 			sha256s := parseSHA256Flags(sha256Flags)
 
 			return pipeline.Release(".", pipelines, version, sha256s, skipTag, skipGithub, skipUpdate)
 		},
 	}
 
-	cmd.Flags().StringVar(&version, "version", "", "Release version (defaults to latest git tag, then package.toml version)")
 	cmd.Flags().StringArrayVar(&sha256Flags, "sha256", nil,
 		"Pre-computed SHA256s as platform=hash pairs, e.g. --sha256 linux-amd64=abc123 (repeatable; downloads if omitted)")
 	cmd.Flags().BoolVar(&skipTag, "skip-tag", false, "Skip git tag creation")
