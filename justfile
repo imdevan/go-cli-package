@@ -1,5 +1,9 @@
 set shell := ["zsh", "-cu"]
 
+CLI := "./bin/go-cli-package"
+
+# Build
+
 build:
 	go build -o bin/go-cli-package ./cmd/go-cli-package
 	@size=$(stat -c %s bin/go-cli-package 2>/dev/null || stat -f %z bin/go-cli-package 2>/dev/null); \
@@ -14,9 +18,6 @@ watch:
 dev-build:
 	go build -gcflags "all=-N -l" -o bin/go-cli-package ./cmd/go-cli-package
 
-build-aur:
-	./scripts/build_aur.sh
-
 install:
 	install -m 0755 bin/go-cli-package /usr/local/bin/go-cli-package
 
@@ -29,13 +30,11 @@ test:
 test-verbose:
 	go test -v ./...
 
-sync:
-	./scripts/sync.sh
-
 clean:
 	rm -rf bin
 
-# Documentation tasks
+# Documentation
+
 docs-init args="":
 	go-cli-docs init {{args}}
 
@@ -57,60 +56,57 @@ docs-clean:
 	@echo "🧹 Cleaning documentation build artifacts..."
 	rm -rf docs/dist docs/.astro docs/node_modules docs/src/content/docs/api
 
-# Package distribution tasks
-init-homebrew-tap:
-	@echo "🍺 Initializing Homebrew tap repository..."
-	./scripts/init_homebrew_tap.sh
+# Pipeline init
 
-init-aur-repo:
-	@echo "📦 Initializing AUR repository..."
-	./scripts/init_aur_repo.sh
+init-homebrew-tap: build
+	{{CLI}} init homebrew
 
-update-homebrew-formula VERSION="":
-	@echo "🍺 Updating Homebrew formula to version {{VERSION}}..."
-	./scripts/update_homebrew_formula.sh {{VERSION}}
+init-aur-repo: build
+	{{CLI}} init aur
 
-update-aur-pkgbuild VERSION="":
-	@echo "📦 Updating AUR PKGBUILD..."
-	./scripts/update_aur_pkgbuild.sh {{VERSION}}
+init-all: build
+	{{CLI}} init all
+
+# Package updates
+
+update-homebrew VERSION="": build
+	{{CLI}} update homebrew {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+
+update-aur VERSION="": build
+	{{CLI}} update aur {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
+
+update VERSION="": build
+	{{CLI}} update all {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
 
 # Git tag management
-tag VERSION="":
-	./scripts/tag.sh {{VERSION}}
 
-tag-delete VERSION="":
-	./scripts/tag_delete.sh {{VERSION}}
+tag-list: build
+	{{CLI}} tag list
 
-tag-list:
-	@echo "📋 Available tags:"
-	@git tag -l --sort=-v:refname | head -20
+tag VERSION: build
+	{{CLI}} tag create {{VERSION}}
 
-# Release management
-release VERSION="":
-	./scripts/release.sh {{VERSION}}
+tag-delete VERSION: build
+	{{CLI}} tag delete {{VERSION}}
 
-github-release VERSION="":
-	./scripts/github_release.sh {{VERSION}}
+# Deploy
 
-deploy-aur VERSION="":
-	./scripts/deploy_aur.sh {{VERSION}}
+deploy-homebrew VERSION="": build
+	{{CLI}} deploy homebrew {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
 
-deploy-homebrew VERSION="":
-	./scripts/deploy_homebrew.sh {{VERSION}}
+deploy-aur VERSION="": build
+	{{CLI}} deploy aur {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
 
-deploy-all VERSION="":
-	./scripts/deploy_all.sh {{VERSION}}
+deploy-all VERSION="": build
+	{{CLI}} deploy all {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
 
-publish-homebrew VERSION="":
-	./scripts/deploy_homebrew.sh {{VERSION}}
+# aliases
+publish-homebrew VERSION="": (deploy-homebrew VERSION)
+publish-aur VERSION="": (deploy-aur VERSION)
 
-publish-aur VERSION="":
-	./scripts/deploy_aur.sh {{VERSION}}
+# Release
 
-publish VERSION="":
-	@just tag {{VERSION}}
-	@just github-release {{VERSION}}
-	@just release {{VERSION}}
-	@just publish-homebrew {{VERSION}}
-	@just publish-aur {{VERSION}}
+release VERSION="": build
+	{{CLI}} release {{ if VERSION != "" { "--version " + VERSION } else { "" } }}
 
+publish VERSION="": (release VERSION)
