@@ -37,13 +37,13 @@ clean:
 
 # Documentation
 
-docs-init args:
+docs-init args="":
 	go-cli-docs init {{args}}
 
-docs-generate args:
+docs-generate args="":
 	go-cli-docs generate {{args}}
 
-docs-dev args:
+docs-dev args="":
 	go-cli-docs watch {{args}} & cd docs && bun install && bun run dev
 
 docs-build: docs-generate
