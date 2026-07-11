@@ -1,28 +1,30 @@
 set shell := ["zsh", "-cu"]
 
-CLI := "./bin/go-cli-package"
+PACKAGE := "go-cli-package"
+PACKAGE_BIN := "./bin/" + PACKAGE
+PACKAGE_CMD := "./cmd/" + PACKAGE
 
 # Build
 
 build:
-	go build -o bin/go-cli-package ./cmd/go-cli-package
-	@size=$(stat -c %s bin/go-cli-package 2>/dev/null || stat -f %z bin/go-cli-package 2>/dev/null); \
+	go build -o {{PACKAGE_BIN}} {{PACKAGE_CMD}}
+	@size=$(stat -c %s {{PACKAGE_BIN}} 2>/dev/null || stat -f %z {{PACKAGE_BIN}} 2>/dev/null); \
 	echo "Build size: $(awk "BEGIN {printf \"%.2f MB\", $size/1048576}")"
 
 build-run:
-	go build -o bin/go-cli-package ./cmd/go-cli-package && ./bin/go-cli-package
+	go build -o {{PACKAGE_BIN}} {{PACKAGE_CMD}} && {{PACKAGE_BIN}}
 
 watch:
-	@rg --files | entr -r sh -c 'sleep 0.5; go build -o bin/go-cli-package ./cmd/go-cli-package'
+	@rg --files | entr -r sh -c 'sleep 0.5; go build -o {{PACKAGE_BIN}} {{PACKAGE_CMD}}'
 
 dev-build:
-	go build -gcflags "all=-N -l" -o bin/go-cli-package ./cmd/go-cli-package
+	go build -gcflags "all=-N -l" -o {{PACKAGE_BIN}} {{PACKAGE_CMD}}
 
 install:
-	install -m 0755 bin/go-cli-package /usr/local/bin/go-cli-package
+	install -m 0755 {{PACKAGE_BIN}} /usr/local/bin/{{PACKAGE}}
 
 uninstall:
-	rm -f /usr/local/bin/go-cli-package
+	rm -f /usr/local/bin/{{PACKAGE}}
 
 test:
 	go test ./...
@@ -35,13 +37,13 @@ clean:
 
 # Documentation
 
-docs-init args="":
+docs-init args:
 	go-cli-docs init {{args}}
 
-docs-generate args="":
+docs-generate args:
 	go-cli-docs generate {{args}}
 
-docs-dev args="":
+docs-dev args:
 	go-cli-docs watch {{args}} & cd docs && bun install && bun run dev
 
 docs-build: docs-generate
@@ -56,57 +58,66 @@ docs-clean:
 	@echo "🧹 Cleaning documentation build artifacts..."
 	rm -rf docs/dist docs/.astro docs/node_modules docs/src/content/docs/api
 
+# Github release management
+# ================================================================================
+
+# Github tag management
+
+tag-list: build
+	{{PACKAGE_BIN}} tag list
+
+tag version: build
+	{{PACKAGE_BIN}} tag create {{version}}
+
+tag-delete version: build
+	{{PACKAGE_BIN}} tag delete {{version}}
+
+# Github release
+
+release version="": build
+	{{PACKAGE_BIN}} release {{version}}
+
+publish version="": (release version)
+
+# Package management
+# ================================================================================
+
 # Pipeline init
 
 init-homebrew-tap: build
-	{{CLI}} init homebrew
+	{{PACKAGE_BIN}} init homebrew
 
 init-aur-repo: build
-	{{CLI}} init aur
+	{{PACKAGE_BIN}} init aur
 
 init-all: build
-	{{CLI}} init all
+	{{PACKAGE_BIN}} init all
 
 # Package updates
 
-update-homebrew VERSION="": build
-	{{CLI}} update homebrew {{VERSION}}
+update-homebrew version="": build
+	{{PACKAGE_BIN}} update homebrew {{version}}
 
-update-aur VERSION="": build
-	{{CLI}} update aur {{VERSION}}
+update-aur version="": build
+	{{PACKAGE_BIN}} update aur {{version}}
 
-update VERSION="": build
-	{{CLI}} update all {{VERSION}}
+update version="": build
+	{{PACKAGE_BIN}} update all {{version}}
 
-# Git tag management
-
-tag-list: build
-	{{CLI}} tag list
-
-tag VERSION: build
-	{{CLI}} tag create {{VERSION}}
-
-tag-delete VERSION: build
-	{{CLI}} tag delete {{VERSION}}
 
 # Deploy
 
-deploy-homebrew VERSION="": build
-	{{CLI}} deploy homebrew {{VERSION}}
+deploy-homebrew version="": build
+	{{PACKAGE_BIN}} deploy homebrew {{version}}
 
-deploy-aur VERSION="": build
-	{{CLI}} deploy aur {{VERSION}}
+deploy-aur version="": build
+	{{PACKAGE_BIN}} deploy aur {{version}}
 
-deploy-all VERSION="": build
-	{{CLI}} deploy all {{VERSION}}
+deploy-all version="": build
+	{{PACKAGE_BIN}} deploy all {{version}}
 
 # aliases
-publish-homebrew VERSION="": (deploy-homebrew VERSION)
-publish-aur VERSION="": (deploy-aur VERSION)
+publish-homebrew version="": (deploy-homebrew version)
+publish-aur version="": (deploy-aur version)
 
-# Release
 
-release VERSION="": build
-	{{CLI}} release {{VERSION}}
-
-publish VERSION="": (release VERSION)
