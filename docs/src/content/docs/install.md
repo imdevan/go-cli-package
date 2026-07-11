@@ -1,6 +1,6 @@
 ---
 title: Install
-description: Installation instructions for go-cli-docs
+description: Installation instructions for go-cli-package
 ---
 
 ## Recommended: 

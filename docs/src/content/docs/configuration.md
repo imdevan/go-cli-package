@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Configuration options for go-cli-docs
+description: Configuration options for go-cli-package
 ---
 
 

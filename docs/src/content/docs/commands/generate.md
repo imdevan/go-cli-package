@@ -22,7 +22,7 @@ go-cli-docs generate --gen-api-docs=false
 ## Usage
 
 ```bash
-go-cli-docs generate
+go-cli-package generate
 ```
 
 ## Flags
@@ -39,4 +39,4 @@ go-cli-docs generate
 
 ## Source
 
-See [generate.go](https://github.com/imdevan/go-cli-docs/blob/main/cmd/go-cli-docs/generate.go) for implementation details.
+See [generate.go](https://github.com/imdevan/go-cli-package/blob/main/cmd/go-cli-package/generate.go) for implementation details.

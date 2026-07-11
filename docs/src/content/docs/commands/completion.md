@@ -8,13 +8,13 @@ Generate shell completion scripts for bash, zsh, fish, or powershell.
 ### Example
 
 ```bash
-go-cli-docs completion bash > /etc/bash_completion.d/go-cli-docs
+go-cli-package completion bash > /etc/bash_completion.d/go-cli-package
 ```
 
 ## Usage
 
 ```bash
-go-cli-docs completion [bash|zsh|fish|powershell]
+go-cli-package completion [bash|zsh|fish|powershell]
 ```
 
 ## Flags
@@ -31,4 +31,4 @@ go-cli-docs completion [bash|zsh|fish|powershell]
 
 ## Source
 
-See [completion.go](https://github.com/imdevan/go-cli-docs/blob/main/cmd/go-cli-docs/completion.go) for implementation details.
+See [completion.go](https://github.com/imdevan/go-cli-package/blob/main/cmd/go-cli-package/completion.go) for implementation details.

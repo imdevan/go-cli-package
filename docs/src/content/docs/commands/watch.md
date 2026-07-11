@@ -17,7 +17,7 @@ go-cli-docs watch --gen-api-docs=false
 ## Usage
 
 ```bash
-go-cli-docs watch
+go-cli-package watch
 ```
 
 ## Flags
@@ -34,4 +34,4 @@ go-cli-docs watch
 
 ## Source
 
-See [watch.go](https://github.com/imdevan/go-cli-docs/blob/main/cmd/go-cli-docs/watch.go) for implementation details.
+See [watch.go](https://github.com/imdevan/go-cli-package/blob/main/cmd/go-cli-package/watch.go) for implementation details.

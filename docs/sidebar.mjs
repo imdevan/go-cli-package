@@ -14,10 +14,10 @@ const apiReference = {
 };
 
 const sidebar = [
-  { label: 'go-cli-docs', link: '/' },
+  { label: 'go-cli-package', link: '/' },
   { label: 'Install', link: '/install' },
   { label: 'Commands', items: [
-    { label: 'go-cli-docs', link: '/commands/go-cli-docs' },
+    { label: 'go-cli-package', link: '/commands/go-cli-package' },
     { label: 'completion', link: '/commands/completion' },
     { label: 'generate', link: '/commands/generate' },
     { label: 'init', link: '/commands/init' },

@@ -1,6 +1,6 @@
 ---
 title: Contributing
-description: Contributing to go-cli-docs
+description: Contributing to go-cli-package
 ---
 
 
