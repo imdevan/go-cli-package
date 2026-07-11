@@ -14,7 +14,7 @@ import (
 //			Generate shell completion scripts for bash, zsh, fish, or powershell.
 //		example:
 //			```bash
-//			go-cli-docs completion bash > /etc/bash_completion.d/go-cli-docs
+//			go-cli-package completion bash > /etc/bash_completion.d/go-cli-package
 //			```
 func newCompletionCmd() *cobra.Command {
 	cmd := &cobra.Command{

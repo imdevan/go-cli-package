@@ -1,27 +1,27 @@
 set shell := ["zsh", "-cu"]
 
 build:
-	go build -o bin/go-cli-docs ./cmd/go-cli-docs
-	@size=$(stat -c %s bin/go-cli-docs 2>/dev/null || stat -f %z bin/go-cli-docs 2>/dev/null); \
+	go build -o bin/go-cli-package ./cmd/go-cli-package
+	@size=$(stat -c %s bin/go-cli-package 2>/dev/null || stat -f %z bin/go-cli-package 2>/dev/null); \
 	echo "Build size: $(awk "BEGIN {printf \"%.2f MB\", $size/1048576}")"
 
 build-run:
-	go build -o bin/go-cli-docs ./cmd/go-cli-docs && ./bin/go-cli-docs
+	go build -o bin/go-cli-package ./cmd/go-cli-package && ./bin/go-cli-package
 
 watch:
-	@rg --files | entr -r sh -c 'sleep 0.5; go build -o bin/go-cli-docs ./cmd/go-cli-docs'
+	@rg --files | entr -r sh -c 'sleep 0.5; go build -o bin/go-cli-package ./cmd/go-cli-package'
 
 dev-build:
-	go build -gcflags "all=-N -l" -o bin/go-cli-docs ./cmd/go-cli-docs
+	go build -gcflags "all=-N -l" -o bin/go-cli-package ./cmd/go-cli-package
 
 build-aur:
 	./scripts/build_aur.sh
 
 install:
-	install -m 0755 bin/go-cli-docs /usr/local/bin/go-cli-docs
+	install -m 0755 bin/go-cli-package /usr/local/bin/go-cli-package
 
 uninstall:
-	rm -f /usr/local/bin/go-cli-docs
+	rm -f /usr/local/bin/go-cli-package
 
 test:
 	go test ./...
@@ -37,13 +37,13 @@ clean:
 
 # Documentation tasks
 docs-init args="":
-	./bin/go-cli-docs init {{args}}
+	./bin/go-cli-package init {{args}}
 
 docs-generate args="":
-	./bin/go-cli-docs generate {{args}}
+	./bin/go-cli-package generate {{args}}
 
 docs-dev args="":
-	./bin/go-cli-docs watch {{args}} & cd docs && bun install && bun run dev
+	./bin/go-cli-package watch {{args}} & cd docs && bun install && bun run dev
 
 docs-build: docs-generate
 	@echo "🏗️  Building documentation site..."

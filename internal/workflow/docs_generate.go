@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/imdevan/go-cli-docs/internal/templates"
+	"go-cli-package/internal/templates"
 	"github.com/pelletier/go-toml/v2"
 )
 
