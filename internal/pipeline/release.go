@@ -93,11 +93,17 @@ func GithubRelease(rootDir string, cfg *Config, version string, cleanDist bool) 
 		return fmt.Errorf("gh CLI not found in PATH; install from https://cli.github.com")
 	}
 
+	cleanRepo := strings.TrimSuffix(cfg.Repository, "/")
+	repoPath := strings.TrimPrefix(cleanRepo, "https://github.com/")
+
 	ghArgs := []string{
 		"release", "create", tag,
 		"--title", tag,
 		"--generate-notes",
 		"--verify-tag",
+	}
+	if repoPath != "" && repoPath != cleanRepo {
+		ghArgs = append(ghArgs, "-R", repoPath)
 	}
 	ghArgs = append(ghArgs, assets...)
 
@@ -140,6 +146,10 @@ func Release(rootDir string, pipelines *Pipelines, version string, sha256s map[s
 		fmt.Println("Step 1: Creating git tag...")
 		if tagExists(rootDir, tag) {
 			fmt.Printf("⚠️  Tag %s already exists; skipping tag creation\n", tag)
+			fmt.Printf("📤 Pushing existing tag %s to origin to ensure remote presence...\n", tag)
+			if err := runCmdInDir(rootDir, "git", "push", "origin", tag); err != nil {
+				fmt.Printf("⚠️  Warning: failed to push existing tag: %v\n", err)
+			}
 		} else {
 			if err := TagCreate(rootDir, version, false); err != nil {
 				return fmt.Errorf("tag: %w", err)
