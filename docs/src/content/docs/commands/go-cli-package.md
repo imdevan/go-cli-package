@@ -35,6 +35,7 @@ go-cli-package
 - [`deploy`](/commands/deploy) - Push updated package manifests to their remotes
 - [`init`](/commands/init) - Initialize packaging repositories (Homebrew tap and/or AUR repository)
 - [`release`](/commands/release) - Build, tag, and publish a GitHub release
+- [`sync`](/commands/sync) - Sync project files with package.toml configuration
 - [`tag`](/commands/tag) - Manage git tags
 - [`update`](/commands/update) - Update package manifests with a new version and checksums
 

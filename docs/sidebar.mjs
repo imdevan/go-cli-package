@@ -23,6 +23,7 @@ const sidebar = [
     { label: 'deploy', link: '/commands/deploy' },
     { label: 'init', link: '/commands/init' },
     { label: 'release', link: '/commands/release' },
+    { label: 'sync', link: '/commands/sync' },
     { label: 'tag', link: '/commands/tag' },
     { label: 'update', link: '/commands/update' },
 
