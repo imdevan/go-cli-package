@@ -10,3 +10,6 @@ docs/src/content/docs/api/
 
 gh_pages_docs
 
+# Package pipeline targets
+aur-*/
+homebrew-*/
