@@ -21,7 +21,7 @@ func PublishHomebrew(p *HomebrewPipeline, version string) error {
 
 	fmt.Printf("🍺 Publishing Homebrew formula for v%s...\n", version)
 
-	pkgName := p.Config.GetPackageName()
+	pkgName := p.Config.GetHomebrewPackageName()
 	githubUser := extractGithubUser(p.Config.Repository)
 
 	// Ensure origin remote exists
@@ -63,7 +63,7 @@ func PublishAUR(p *AURPipeline, version string) error {
 
 	fmt.Printf("📦 Publishing AUR package for v%s...\n", version)
 
-	pkgName := p.Config.GetPackageName()
+	pkgName := p.Config.GetAURPackageName()
 
 	// Generate .SRCINFO (requires makepkg)
 	makepkgPath, err := exec.LookPath("makepkg")

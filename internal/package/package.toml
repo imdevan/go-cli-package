@@ -3,6 +3,8 @@
 
 name = "go-cli-package"
 package_name = "go-cli-package"
+# homebrew_package_name = "go-cli-package" # Optional: override default package name for Homebrew
+# aur_package_name = "go-cli-package"      # Optional: override default package name for AUR
 module = "github.com/go-cli-package"
 description = "A go cli to publish your go cli package."
 short = "A cli for your (go) cli package publishing"

@@ -259,7 +259,7 @@ package() {
 		LinuxARM64SHA string
 	}{
 		Author:        p.Config.Author,
-		PackageName:   p.Config.GetPackageName(),
+		PackageName:   p.Config.GetAURPackageName(),
 		Name:          p.Config.Name,
 		Version:       version,
 		Description:   p.Config.Description,

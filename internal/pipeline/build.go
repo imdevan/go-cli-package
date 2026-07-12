@@ -43,7 +43,7 @@ func BuildBinary(rootDir string, cfg *Config) error {
 
 // BuildAUR generates the PKGBUILD file from the template.
 func BuildAUR(rootDir string, cfg *Config, version string, sha256 string) error {
-	pkgName := cfg.GetPackageName()
+	pkgName := cfg.GetAURPackageName()
 	templatePath := filepath.Join(rootDir, "aur", "PKGBUILD.template")
 	outputDir := filepath.Join(rootDir, "dist", "aur")
 	outputPath := filepath.Join(outputDir, "PKGBUILD")

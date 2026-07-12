@@ -169,10 +169,11 @@ func Release(rootDir string, pipelines *Pipelines, version string, skipTag, skip
 	fmt.Printf("✅ Release %s complete!\n", tag)
 	fmt.Println()
 	fmt.Println("Next steps:")
-	pkgName := cfg.GetPackageName()
+	aurPkgName := cfg.GetAURPackageName()
+	hbPkgName := cfg.GetHomebrewPackageName()
 	fmt.Printf("  1. Update package manifests: go-cli-package update all %s\n", version)
-	fmt.Printf("  2. Test AUR: cd aur-%s && makepkg -si\n", pkgName)
-	fmt.Printf("  3. Test Homebrew: brew install --build-from-source homebrew-%s/Formula/%s.rb\n", pkgName, pkgName)
+	fmt.Printf("  2. Test AUR: cd aur-%s && makepkg -si\n", aurPkgName)
+	fmt.Printf("  3. Test Homebrew: brew install --build-from-source homebrew-%s/Formula/%s.rb\n", hbPkgName, hbPkgName)
 	fmt.Printf("  4. Publish: go-cli-package publish all %s\n", version)
 	return nil
 }

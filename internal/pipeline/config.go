@@ -11,17 +11,19 @@ import (
 
 // Config represents the metadata defined in package.toml
 type Config struct {
-	Name        string `toml:"name"`
-	PackageName string `toml:"package_name"`
-	Module      string `toml:"module"`
-	Description string `toml:"description"`
-	Short       string `toml:"short"`
-	Version     string `toml:"version"`
-	Homepage    string `toml:"homepage"`
-	Repository  string `toml:"repository"`
-	Author      string `toml:"author"`
-	DocsSite    string `toml:"docs_site"`
-	DocsBase    string `toml:"docs_base"`
+	Name                string `toml:"name"`
+	PackageName         string `toml:"package_name"`
+	HomebrewPackageName string `toml:"homebrew_package_name"`
+	AURPackageName      string `toml:"aur_package_name"`
+	Module              string `toml:"module"`
+	Description         string `toml:"description"`
+	Short               string `toml:"short"`
+	Version             string `toml:"version"`
+	Homepage            string `toml:"homepage"`
+	Repository          string `toml:"repository"`
+	Author              string `toml:"author"`
+	DocsSite            string `toml:"docs_site"`
+	DocsBase            string `toml:"docs_base"`
 }
 
 // GetPackageName returns PackageName or Name if PackageName is empty.
@@ -30,6 +32,22 @@ func (c *Config) GetPackageName() string {
 		return c.PackageName
 	}
 	return c.Name
+}
+
+// GetHomebrewPackageName returns HomebrewPackageName if not empty, otherwise GetPackageName().
+func (c *Config) GetHomebrewPackageName() string {
+	if c.HomebrewPackageName != "" {
+		return c.HomebrewPackageName
+	}
+	return c.GetPackageName()
+}
+
+// GetAURPackageName returns AURPackageName if not empty, otherwise GetPackageName().
+func (c *Config) GetAURPackageName() string {
+	if c.AURPackageName != "" {
+		return c.AURPackageName
+	}
+	return c.GetPackageName()
 }
 
 // HomebrewPipeline represents the Homebrew delivery channel.
@@ -93,18 +111,19 @@ func FindAndLoadConfig(rootDir string) (*Config, error) {
 
 // NewPipelines creates a Pipelines representation from the root directory and config.
 func NewPipelines(rootDir string, cfg *Config) *Pipelines {
-	pkgName := cfg.GetPackageName()
+	hbPkgName := cfg.GetHomebrewPackageName()
+	aurPkgName := cfg.GetAURPackageName()
 	
 	// Homebrew fields
-	tapName := "homebrew-" + pkgName
+	tapName := "homebrew-" + hbPkgName
 	tapDir := filepath.Join(rootDir, tapName)
-	formulaPath := filepath.Join(tapDir, "Formula", pkgName+".rb")
+	formulaPath := filepath.Join(tapDir, "Formula", hbPkgName+".rb")
 	
 	// CamelCase conversion for Homebrew formula class name
-	className := toCamelCase(pkgName)
+	className := toCamelCase(hbPkgName)
 	
 	// AUR fields
-	aurDir := filepath.Join(rootDir, "aur-"+pkgName)
+	aurDir := filepath.Join(rootDir, "aur-"+aurPkgName)
 	aurPKGBUILDPath := filepath.Join(aurDir, "PKGBUILD")
 
 	return &Pipelines{

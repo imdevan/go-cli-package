@@ -78,7 +78,7 @@ func InitializeHomebrew(p *HomebrewPipeline, force bool) error {
 
 	fmt.Printf("🍺 Initializing Homebrew tap repository...\n")
 	fmt.Printf("   Tap name: %s\n", p.TapName)
-	fmt.Printf("   Package name: %s\n", p.Config.GetPackageName())
+	fmt.Printf("   Package name: %s\n", p.Config.GetHomebrewPackageName())
 	fmt.Printf("   Binary name: %s\n", p.Config.Name)
 	fmt.Printf("   Location: %s\n", p.TapDir)
 
@@ -131,7 +131,7 @@ brew untap {{.GithubUser}}/{{.PackageName}}
 		Homepage    string
 		GithubUser  string
 	}{
-		PackageName: p.Config.GetPackageName(),
+		PackageName: p.Config.GetHomebrewPackageName(),
 		Name:        p.Config.Name,
 		Homepage:    p.Config.Homepage,
 		GithubUser:  githubUser,
@@ -228,7 +228,7 @@ end
 	if err := runCmdInDir(p.TapDir, "git", "add", "."); err != nil {
 		return fmt.Errorf("failed to add files to git: %w", err)
 	}
-	if err := runCmdInDir(p.TapDir, "git", "commit", "-m", fmt.Sprintf("Initial commit: Homebrew tap for %s", p.Config.GetPackageName())); err != nil {
+	if err := runCmdInDir(p.TapDir, "git", "commit", "-m", fmt.Sprintf("Initial commit: Homebrew tap for %s", p.Config.GetHomebrewPackageName())); err != nil {
 		return fmt.Errorf("failed to run git commit: %w", err)
 	}
 
@@ -290,7 +290,7 @@ func InitializeAUR(p *AURPipeline, force bool) error {
 
 	// Try cloning first
 	fmt.Printf("📦 Attempting to clone AUR repository...\n")
-	remoteURL := fmt.Sprintf("ssh://aur@aur.archlinux.org/%s.git", p.Config.GetPackageName())
+	remoteURL := fmt.Sprintf("ssh://aur@aur.archlinux.org/%s.git", p.Config.GetAURPackageName())
 	if err := runCmdInDir(".", "git", "clone", remoteURL, p.AURDir); err == nil {
 		if _, err := os.Stat(p.PKGBUILDPath); err == nil {
 			fmt.Printf("✅ AUR repository successfully cloned to: %s\n", p.AURDir)
@@ -303,7 +303,7 @@ func InitializeAUR(p *AURPipeline, force bool) error {
 	}
 
 	fmt.Printf("📦 Initializing AUR repository...\n")
-	fmt.Printf("   Package name: %s\n", p.Config.GetPackageName())
+	fmt.Printf("   Package name: %s\n", p.Config.GetAURPackageName())
 	fmt.Printf("   Binary name: %s\n", p.Config.Name)
 	fmt.Printf("   Location: %s\n", p.AURDir)
 
@@ -351,7 +351,7 @@ package() {
 		RepoURL     string
 	}{
 		Author:      p.Config.Author,
-		PackageName: p.Config.GetPackageName(),
+		PackageName: p.Config.GetAURPackageName(),
 		Name:        p.Config.Name,
 		Description: p.Config.Description,
 		Homepage:    p.Config.Homepage,
@@ -431,7 +431,7 @@ sudo pacman -R {{.PackageName}}
 		Homepage    string
 		Author      string
 	}{
-		PackageName: p.Config.GetPackageName(),
+		PackageName: p.Config.GetAURPackageName(),
 		Name:        p.Config.Name,
 		Homepage:    p.Config.Homepage,
 		Author:      p.Config.Author,
@@ -507,7 +507,7 @@ src/
 	if err := runCmdInDir(p.AURDir, "git", gitAddArgs...); err != nil {
 		return fmt.Errorf("failed to add files to git: %w", err)
 	}
-	if err := runCmdInDir(p.AURDir, "git", "commit", "-m", fmt.Sprintf("Initial commit: AUR package for %s", p.Config.GetPackageName())); err != nil {
+	if err := runCmdInDir(p.AURDir, "git", "commit", "-m", fmt.Sprintf("Initial commit: AUR package for %s", p.Config.GetAURPackageName())); err != nil {
 		return fmt.Errorf("failed to run git commit: %w", err)
 	}
 
