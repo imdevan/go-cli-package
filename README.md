@@ -63,6 +63,9 @@ version     = "0.1.0"
 repository  = "https://github.com/you/my-tool"
 docs_site   = "https://you.github.io"
 docs_base   = "/my-tool"
+# Optional overrides:
+# homebrew_package_name = "my-tool-brew"
+# aur_package_name      = "my-tool-aur"
 ```
 
 3. Run `just sync` to propagate changes.
@@ -339,6 +342,9 @@ version     = "0.1.0"
 repository  = "https://github.com/you/my-tool"
 docs_site   = "https://you.github.io"
 docs_base   = "/my-tool"
+# Optional overrides:
+# homebrew_package_name = "my-tool-brew"
+# aur_package_name      = "my-tool-aur"
 ```
 
 See `CONFIG.md` for the full reference.
