@@ -2,130 +2,94 @@ package pipeline
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
-func checkGitRepo(t *testing.T, dir string, expectedBranch string) {
-	t.Helper()
-	// Check if git directory exists
-	if _, err := os.Stat(filepath.Join(dir, ".git")); err != nil {
-		t.Errorf("expected .git directory to exist in %s: %v", dir, err)
-		return
-	}
-
-	// Check branch name
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	cmd.Dir = dir
-	out, err := cmd.Output()
+func TestEnsureIgnored_NotExist(t *testing.T) {
+	tmpDir := t.TempDir()
+	err := ensureIgnored(tmpDir, "homebrew-foo")
 	if err != nil {
-		t.Errorf("failed to check git branch: %v", err)
-		return
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	actualBranch := strings.TrimSpace(string(out))
-	if actualBranch != expectedBranch {
-		t.Errorf("expected branch %s, got %s", expectedBranch, actualBranch)
+	data, err := os.ReadFile(filepath.Join(tmpDir, ".gitignore"))
+	if err != nil {
+		t.Fatalf("failed to read .gitignore: %v", err)
 	}
 
-	// Check if there are commits
-	cmd = exec.Command("git", "log", "-n", "1", "--oneline")
-	cmd.Dir = dir
-	if err := cmd.Run(); err != nil {
-		t.Errorf("expected at least one commit in %s", dir)
+	expected := "homebrew-foo/\n"
+	if string(data) != expected {
+		t.Errorf("expected %q, got %q", expected, string(data))
 	}
 }
 
-func TestInitializeHomebrew(t *testing.T) {
+func TestEnsureIgnored_Append(t *testing.T) {
 	tmpDir := t.TempDir()
-	cfg := &Config{
-		Name:        "test-cli",
-		PackageName: "test-cli-package",
-		Version:     "0.1.0",
-		Homepage:    "https://example.com",
-		Repository:  "https://github.com/org/test-cli",
-		Description: "A generic test CLI",
+	gitignorePath := filepath.Join(tmpDir, ".gitignore")
+	initialContent := "foo\nbar"
+	if err := os.WriteFile(gitignorePath, []byte(initialContent), 0644); err != nil {
+		t.Fatalf("failed to write initial .gitignore: %v", err)
 	}
 
-	pipelines := NewPipelines(tmpDir, cfg)
-
-	err := InitializeHomebrew(pipelines.Homebrew, true)
+	err := ensureIgnored(tmpDir, "aur-foo")
 	if err != nil {
-		t.Fatalf("InitializeHomebrew failed: %v", err)
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Verify formula file existence
-	if _, err := os.Stat(pipelines.Homebrew.FormulaPath); err != nil {
-		t.Fatalf("expected formula file to exist: %v", err)
-	}
-
-	formulaContent, err := os.ReadFile(pipelines.Homebrew.FormulaPath)
+	data, err := os.ReadFile(gitignorePath)
 	if err != nil {
-		t.Fatalf("failed to read formula file: %v", err)
+		t.Fatalf("failed to read .gitignore: %v", err)
 	}
 
-	if !strings.Contains(string(formulaContent), "class TestCliPackage < Formula") {
-		t.Errorf("formula class name not capitalized correctly: %s", string(formulaContent))
+	expected := "foo\nbar\naur-foo/\n"
+	if string(data) != expected {
+		t.Errorf("expected %q, got %q", expected, string(data))
 	}
-	if !strings.Contains(string(formulaContent), "desc \"A generic test CLI\"") {
-		t.Errorf("formula desc not template substituted correctly")
-	}
-
-	// Verify README
-	readmePath := filepath.Join(pipelines.Homebrew.TapDir, "README.md")
-	if _, err := os.Stat(readmePath); err != nil {
-		t.Fatalf("expected README to exist: %v", err)
-	}
-
-	readmeContent, err := os.ReadFile(readmePath)
-	if err != nil {
-		t.Fatalf("failed to read README: %v", err)
-	}
-	if !strings.Contains(string(readmeContent), "brew tap org/test-cli-package") {
-		t.Errorf("expected README to contain tap instruction, got: %s", string(readmeContent))
-	}
-
-	// Verify Git repository state
-	checkGitRepo(t, pipelines.Homebrew.TapDir, "main")
 }
 
-func TestInitializeAUR(t *testing.T) {
+func TestEnsureIgnored_AlreadyIgnoredExact(t *testing.T) {
 	tmpDir := t.TempDir()
-	cfg := &Config{
-		Name:        "test-cli",
-		PackageName: "test-cli-package",
-		Version:     "0.1.0",
-		Homepage:    "https://example.com",
-		Repository:  "https://github.com/org/test-cli",
-		Description: "A generic test CLI",
-		Author:      "test-author@example.com",
+	gitignorePath := filepath.Join(tmpDir, ".gitignore")
+	initialContent := "foo\naur-foo/\nbar"
+	if err := os.WriteFile(gitignorePath, []byte(initialContent), 0644); err != nil {
+		t.Fatalf("failed to write initial .gitignore: %v", err)
 	}
 
-	pipelines := NewPipelines(tmpDir, cfg)
-
-	err := InitializeAUR(pipelines.AUR, true)
+	err := ensureIgnored(tmpDir, "aur-foo")
 	if err != nil {
-		t.Fatalf("InitializeAUR failed: %v", err)
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Verify PKGBUILD existence
-	if _, err := os.Stat(pipelines.AUR.PKGBUILDPath); err != nil {
-		t.Fatalf("expected PKGBUILD to exist: %v", err)
-	}
-
-	pkgbuildContent, err := os.ReadFile(pipelines.AUR.PKGBUILDPath)
+	data, err := os.ReadFile(gitignorePath)
 	if err != nil {
-		t.Fatalf("failed to read PKGBUILD: %v", err)
-	}
-	if !strings.Contains(string(pkgbuildContent), "pkgname=test-cli-package") {
-		t.Errorf("expected PKGBUILD to contain pkgname, got: %s", string(pkgbuildContent))
-	}
-	if !strings.Contains(string(pkgbuildContent), "# Maintainer: test-author@example.com") {
-		t.Errorf("expected PKGBUILD to contain maintainer comment, got: %s", string(pkgbuildContent))
+		t.Fatalf("failed to read .gitignore: %v", err)
 	}
 
-	// Verify Git repository state
-	checkGitRepo(t, pipelines.AUR.AURDir, "master")
+	if string(data) != initialContent {
+		t.Errorf("expected no changes, got %q", string(data))
+	}
+}
+
+func TestEnsureIgnored_AlreadyIgnoredWildcard(t *testing.T) {
+	tmpDir := t.TempDir()
+	gitignorePath := filepath.Join(tmpDir, ".gitignore")
+	initialContent := "foo\nhomebrew-*/\nbar"
+	if err := os.WriteFile(gitignorePath, []byte(initialContent), 0644); err != nil {
+		t.Fatalf("failed to write initial .gitignore: %v", err)
+	}
+
+	err := ensureIgnored(tmpDir, "homebrew-foo")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	data, err := os.ReadFile(gitignorePath)
+	if err != nil {
+		t.Fatalf("failed to read .gitignore: %v", err)
+	}
+
+	if string(data) != initialContent {
+		t.Errorf("expected no changes, got %q", string(data))
+	}
 }

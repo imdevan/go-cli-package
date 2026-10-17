@@ -59,6 +59,11 @@ func InitializeHomebrew(p *HomebrewPipeline, force bool) error {
 		return nil
 	}
 
+	rootDir := filepath.Dir(p.TapDir)
+	if err := ensureIgnored(rootDir, p.TapName); err != nil {
+		return err
+	}
+
 	githubUser := extractGithubUser(p.Config.Repository)
 
 	// Try cloning first
@@ -286,6 +291,12 @@ func InitializeAUR(p *AURPipeline, force bool) error {
 	if !shouldProceed {
 		fmt.Printf("⚠️  AUR repository already exists at %s; skipping initialization. Use --force to overwrite.\n", p.AURDir)
 		return nil
+	}
+
+	rootDir := filepath.Dir(p.AURDir)
+	aurDirName := filepath.Base(p.AURDir)
+	if err := ensureIgnored(rootDir, aurDirName); err != nil {
+		return err
 	}
 
 	// Try cloning first
@@ -537,6 +548,59 @@ src/
 		fmt.Printf("Next steps:\n")
 		fmt.Printf("1. Update PKGBUILD with actual release SHA256 using:\n")
 		fmt.Printf("   go-cli-package update [version]\n\n")
+	}
+
+	return nil
+}
+
+func ensureIgnored(rootDir string, dirName string) error {
+	gitignorePath := filepath.Join(rootDir, ".gitignore")
+	data, err := os.ReadFile(gitignorePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			content := dirName + "/\n"
+			return os.WriteFile(gitignorePath, []byte(content), 0644)
+		}
+		return fmt.Errorf("failed to read .gitignore: %w", err)
+	}
+
+	lines := strings.Split(string(data), "\n")
+	ignored := false
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if line == dirName || line == dirName+"/" {
+			ignored = true
+			break
+		}
+		if strings.HasPrefix(dirName, "homebrew-") && (line == "homebrew-*/" || line == "homebrew-*") {
+			ignored = true
+			break
+		}
+		if strings.HasPrefix(dirName, "aur-") && (line == "aur-*/" || line == "aur-*") {
+			ignored = true
+			break
+		}
+	}
+
+	if !ignored {
+		f, err := os.OpenFile(gitignorePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			return fmt.Errorf("failed to open .gitignore for writing: %w", err)
+		}
+		defer f.Close()
+
+		if len(data) > 0 && data[len(data)-1] != '\n' {
+			if _, err := f.WriteString("\n"); err != nil {
+				return err
+			}
+		}
+
+		if _, err := f.WriteString(dirName + "/\n"); err != nil {
+			return err
+		}
 	}
 
 	return nil

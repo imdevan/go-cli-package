@@ -90,6 +90,20 @@ func Sync(rootDir string, configPath string) error {
 		if err := updateJustfile(rootDir, currentName, cfg.Name); err != nil {
 			return fmt.Errorf("failed to update justfile: %w", err)
 		}
+
+		// Update .github/workflows
+		fmt.Println("Updating .github/workflows...")
+		if err := updateGithubWorkflows(rootDir, currentName, cfg.Name); err != nil {
+			return fmt.Errorf("failed to update .github/workflows: %w", err)
+		}
+	}
+
+	// Update README H1
+	if cfg.Name != "" {
+		fmt.Println("Updating README H1...")
+		if err := updateReadmeH1(rootDir, cfg.Name); err != nil {
+			return fmt.Errorf("failed to update README.md H1: %w", err)
+		}
 	}
 
 	// Update README description
@@ -225,6 +239,38 @@ func updateJustfile(rootDir, oldName, newName string) error {
 	return os.WriteFile(justfilePath, []byte(contentStr), 0644)
 }
 
+// updateGithubWorkflows replaces all occurrences of oldName with newName in
+// every .yml/.yaml file found under <rootDir>/.github/workflows/.
+func updateGithubWorkflows(rootDir, oldName, newName string) error {
+	workflowsDir := filepath.Join(rootDir, ".github", "workflows")
+	if _, err := os.Stat(workflowsDir); os.IsNotExist(err) {
+		return nil // nothing to do
+	}
+
+	return filepath.Walk(workflowsDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".yml" && ext != ".yaml" {
+			return nil
+		}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		contentStr := string(content)
+		if !strings.Contains(contentStr, oldName) {
+			return nil
+		}
+		updated := strings.ReplaceAll(contentStr, oldName, newName)
+		return os.WriteFile(path, []byte(updated), info.Mode())
+	})
+}
+
 func updateReadmeDescription(rootDir, description string) error {
 	readmePath := filepath.Join(rootDir, "README.md")
 	content, err := os.ReadFile(readmePath)
@@ -247,4 +293,39 @@ func updateReadmeDescription(rootDir, description string) error {
 	}
 
 	return os.WriteFile(readmePath, []byte(strings.Join(newLines, "\n")), 0644)
+}
+
+func updateReadmeH1(rootDir, name string) error {
+	readmePath := filepath.Join(rootDir, "README.md")
+	content, err := os.ReadFile(readmePath)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(content), "\n")
+	inCodeBlock := false
+	updated := false
+
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "```") {
+			inCodeBlock = !inCodeBlock
+			continue
+		}
+		if inCodeBlock {
+			continue
+		}
+
+		if strings.HasPrefix(line, "# ") {
+			lines[i] = "# " + name
+			updated = true
+			break
+		}
+	}
+
+	if !updated {
+		return nil
+	}
+
+	return os.WriteFile(readmePath, []byte(strings.Join(lines, "\n")), 0644)
 }
